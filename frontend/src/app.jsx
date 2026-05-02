@@ -7,7 +7,6 @@ export default function App() {
   const [user, setUser]       = useState(null)
   const [ready, setReady]     = useState(false)
 
-  // Check for existing session on mount
   useEffect(() => {
     checkSession().then(data => {
       if (data) setUser(data)

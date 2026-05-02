@@ -3,7 +3,7 @@ import { apiLogin, apiRegister } from '../api.js'
 import './AuthPage.css'
 
 export default function AuthPage({ onLogin }) {
-  const [mode, setMode]       = useState('login')   // 'login' | 'register'
+  const [mode, setMode]       = useState('login')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm]   = useState('')
@@ -49,7 +49,7 @@ export default function AuthPage({ onLogin }) {
   return (
     <div className="auth-root">
 
-      {/* Right panel – form */}
+      {}
       <div className="auth-right">
         <div className="auth-form-wrap fade-in">
 

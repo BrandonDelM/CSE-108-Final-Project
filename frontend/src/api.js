@@ -1,5 +1,3 @@
-// ── Auth helpers ──────────────────────────────────────────────────────────────
-
 export async function apiLogin(username, password) {
     const res = await fetch('/login', {
       method: 'POST',
@@ -36,8 +34,6 @@ export async function apiLogin(username, password) {
       return null
     }
   }
-  
-  // ── Admin API ─────────────────────────────────────────────────────────────────
   
   export async function apiGetUsers() {
     const res = await fetch('/api/users', { credentials: 'include' })
