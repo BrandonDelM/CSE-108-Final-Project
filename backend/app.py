@@ -41,12 +41,14 @@ CORS(app, origins=["http://127.0.0.1:5173", "http://localhost:5173"],
 
 # ── SQLAlchemy models (for Flask-Admin only) ──────────────────────────────────
 
+
 class User(db.Model):
     __tablename__ = "users"
     id       = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     role     = db.Column(db.String, nullable=False, default="student")
+
 
 # ── Flask-Admin ──────────────────────────────────────────────────────────────
 
@@ -178,6 +180,7 @@ def api_update_user(uid):
     update_user_role(uid, role)
     return jsonify({"msg": "Updated"})
 
+#blah blah blah blah
 
 @app.route("/api/users/<int:uid>", methods=["DELETE"])
 def api_delete_user(uid):
