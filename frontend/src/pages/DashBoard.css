@@ -79,8 +79,8 @@
     border-bottom: 1px solid var(--border);
   }
   .dash-greeting {
-    font-size: 14px;
-    color: var(--text-3);
+    font-size: 1rem;
+    color: var(--text-2);
     margin-bottom: 4px;
     letter-spacing: 0.04em;
   }
@@ -132,14 +132,16 @@
   
   .stat-row {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
   }
   .stat-card {
     background: var(--ink-2);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 20px 20px 16px;
+    padding: 36px 32px 28px;
     position: relative;
     overflow: hidden;
   }
