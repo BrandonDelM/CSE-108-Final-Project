@@ -140,16 +140,15 @@ def session():
         return jsonify({"msg": "User not found"}), 404
     return jsonify({"id": user["id"], "username": user["username"], "role": user["role"]})
 
-@app.route("/api/credentials/email", methods=["GET"])
+@app.route("/api/credentials", methods=["GET"])
 def get_campaign_credentials():
-    data = request.get_json()
-    username: str = data.get('username')
+    username: str = request.headers.get('X-Username')
     user = get_credentials_username(username)
     if not user:
         return jsonify({"msg": "User not found"}), 404
     return jsonify({"username": user["username"], "email": user["email"], "password": user["password"]}), 200
 
-@app.route("/api/credentials/email", methods=["POST"])
+@app.route("/api/credentials", methods=["POST"])
 def post_campaign_credentials():
     data = request.get_json()
     username: str = data.get('username')
@@ -162,7 +161,7 @@ def post_campaign_credentials():
         return jsonify({"msg": "User not added"}), 404
     return jsonify({"msg": f"{username} added successfully"}), 200
 
-@app.route("/api/credentials/email", methods=["PUT"])
+@app.route("/api/credentials", methods=["PUT"])
 def put_campaign_credentials():
     data = request.get_json()
     username: str = data.get('username')

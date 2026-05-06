@@ -61,14 +61,33 @@ export async function apiLogin(username, password) {
     return res.json()
   }
 
-export async function apiGetCredentials() {
-  return
+export async function apiGetCredentials(username) {
+  const res = await fetch('/api/credentials', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', 'X-Username': username },
+    })
+  if (!res.ok) throw new Error('Failed to update role')
+  return res.json()
 }
 
-export async function apiPostCredentials() {
-  return
+export async function apiPostCredentials(username, email, password) {
+  let data = {"username": username, "email": email, "password": password}
+  const res = await fetch('/api/credentials', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' },
+    })
+  if (!res.ok) throw new Error('Failed to update role')
+  return res.json()
 }
 
 export async function apiPutCredentials() {
-  return
+  let data = {"username": username, "email": email, "password": password}
+  const res = await fetch('/api/credentials', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' },
+    })
+  if (!res.ok) throw new Error('Failed to update role')
+  return res.json()
 }

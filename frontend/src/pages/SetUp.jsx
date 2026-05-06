@@ -1,10 +1,10 @@
 import './Dashboard.css'
 import { useState } from 'react'
-import { apiLogin, apiRegister } from '../api.js'
+import { apiLogin, apiPostCredentials, apiRegister } from '../api.js'
 
 export default function Dashboard({ user, onLogout }) {
       const [mode, setMode]       = useState('login')
-      const [username, setUsername] = useState('')
+      const [email, setEmail] = useState('')
       const [password, setPassword] = useState('')
       const [confirm, setConfirm]   = useState('')
       const [error, setError]       = useState('')
@@ -12,7 +12,7 @@ export default function Dashboard({ user, onLogout }) {
       const [loading, setLoading]   = useState(false)
     
       function reset() {
-        setUsername(''); setPassword(''); setConfirm(''); setError(''); setSuccess('')
+        setEmail(''); setPassword(''); setConfirm(''); setError(''); setSuccess('')
       }
     
       function switchMode(m) { setMode(m); reset() }
@@ -20,25 +20,11 @@ export default function Dashboard({ user, onLogout }) {
       async function handleSubmit(e) {
         e.preventDefault()
         setError(''); setSuccess('')
-        if (!username.trim() || !password) { setError('All fields are required.'); return }
-    
-        if (mode === 'register') {
-          if (password !== confirm) { setError('Passwords do not match.'); return }
-          if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
-        }
+        if (!email.trim() || !password) { setError('All fields are required.'); return }
     
         setLoading(true)
         try {
-          if (mode === 'login') {
-            const user = await apiLogin(username.trim(), password)
-            if (user) { onLogin(user) }
-            else { setError('Invalid username or password.') }
-          } else {
-            await apiRegister(username.trim(), password)
-            setSuccess('Account created! You can now sign in.')
-            switchMode('login')
-            setUsername(username.trim())
-          }
+          await apiPostCredentials(user.username, email, password)
         } catch (err) {
           setError(err.message)
         } finally {
@@ -70,15 +56,15 @@ export default function Dashboard({ user, onLogout }) {
 
         <form onSubmit={handleSubmit} className="auth-form" noValidate>
             <div className="field-group">
-              <label className="field-label" htmlFor="email">Entet Your Campaign Email</label>
+              <label className="field-label" htmlFor="email">Enter Your Campaign Email</label>
               <input
                 id="email"
                 className="field-input"
                 type="text"
                 autoComplete="email"
                 placeholder="john.doe@example.com"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 disabled={loading}
               />
             </div>
