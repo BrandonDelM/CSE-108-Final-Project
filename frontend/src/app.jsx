@@ -36,7 +36,8 @@ export default function App() {
     </div>
   )
 
+  console.log(user)
   if (!user) return <AuthPage onLogin={setUser} />
-
-  return <SetUp user={user} onLogout={handleLogout} />
+  if (!user.is_setup) return <SetUp user={user} onLogout={handleLogout} onSetupComplete={() => setUser(u => ({ ...u, is_setup: true }))} />
+  return <Dashboard user={user} onLogout={handleLogout} />
 }

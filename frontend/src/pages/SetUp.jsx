@@ -2,7 +2,7 @@ import './Dashboard.css'
 import { useState } from 'react'
 import { apiLogin, apiPostCredentials, apiRegister } from '../api.js'
 
-export default function Dashboard({ user, onLogout }) {
+export default function Dashboard({ user, onLogout, onSetupComplete }) {
       const [mode, setMode]       = useState('login')
       const [email, setEmail] = useState('')
       const [password, setPassword] = useState('')
@@ -25,6 +25,7 @@ export default function Dashboard({ user, onLogout }) {
         setLoading(true)
         try {
           await apiPostCredentials(user.username, email, password)
+          onSetupComplete()
         } catch (err) {
           setError(err.message)
         } finally {

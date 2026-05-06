@@ -138,7 +138,7 @@ def session():
     user = current_user()
     if not user:
         return jsonify({"msg": "User not found"}), 404
-    return jsonify({"id": user["id"], "username": user["username"], "role": user["role"]})
+    return jsonify({"id": user["id"], "username": user["username"], "role": user["role"], "is_setup": user["email"] is not None})
 
 @app.route("/api/credentials", methods=["GET"])
 def get_campaign_credentials():

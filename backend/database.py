@@ -13,9 +13,10 @@ def get_credentials_username(username: str):
     conn = get_conn()
     c = conn.cursor()
     try:
-        credentials = c.fetchone(
+        c.execute(
             "SELECT * FROM credentials where username = ?", (username,)
         )
+        credentials = c.fetchone()
     except sqlite3.IntegrityError as e:
         print(f'Error: {e}')
         credentials = None
@@ -81,9 +82,12 @@ def init_db():
 # ── Users ────────────────────────────────────────────────────────────────────
 
 def get_user_by_username(username: str):
+    init_credentials_db()
     conn = get_conn()
     c = conn.cursor()
-    c.execute("SELECT * FROM users WHERE username = ?", (username,))
+    c.execute("""SELECT u.id, u.username, u.role, u.password, c.email FROM users u
+              LEFT JOIN credentials c ON c.username = u.username
+              WHERE u.username = ?""", (username,))
     row = c.fetchone()
     conn.close()
     return dict(row) if row else None
