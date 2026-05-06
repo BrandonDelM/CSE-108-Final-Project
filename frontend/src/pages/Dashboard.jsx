@@ -13,8 +13,8 @@ export default function Dashboard({ user, onLogout }) {
       <header className="dash-header">
         <div className="container dash-header-inner">
           <div className="dash-brand">
-            <span className="dash-brand-mark">H</span>
-            <span className="dash-brand-name">Horror Game</span>
+            <span className="dash-brand-mark">G</span>
+            <span className="dash-brand-name">GoMail</span>
           </div>
           <div className="dash-header-right">
             <span className="dash-username">{user.username}</span>
