@@ -8,14 +8,61 @@ def get_conn():
     conn.row_factory = sqlite3.Row
     return conn
 
-def get_password():
-    return
+def get_credentials_username(username: str):
+    init_credentials_db()
+    conn = get_conn()
+    c = conn.cursor()
+    try:
+        credentials = c.fetchone(
+            "SELECT * FROM credentials where username = ?", (username,)
+        )
+    except sqlite3.IntegrityError as e:
+        print(f'Error: {e}')
+        credentials = None
+    conn.close()
+    return credentials
 
-def post_password():
-    return
 
-def set_password():
-    return
+def post_credentials(username: str, email: str, password: str):
+    init_credentials_db()
+    conn = get_conn()
+    c = conn.cursor()
+    try:
+        c.execute(
+            "INSERT INTO credentials (username, email, password) VALUES (?, ?, ?)",
+            (username, email, password),
+        )
+        conn.commit()
+    except sqlite3.IntegrityError as e:
+        print(f'Error: {e}')
+    conn.close()
+
+def put_credentials(username: str, email: str, password: str): 
+    init_credentials_db()
+    conn = get_conn()
+    c = conn.cursor()
+    try:
+        c.execute(
+            "UPDATE credentials SET email = ?, password = ? WHERE username = ?", (email, password, username)
+        )
+        conn.commit()
+    except sqlite3.IntegrityError as e:
+        print(f'Error: {e}')
+    conn.close()
+
+def init_credentials_db():
+    conn = get_conn()
+    c = conn.cursor()
+    c.executescript("""
+        CREATE TABLE IF NOT EXISTS credentials (
+            id       INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT    NOT NULL UNIQUE,
+            email TEXT    NOT NULL UNIQUE,
+            password     TEXT    NOT NULL
+        );
+    """)
+    conn.commit()
+    conn.close()
 
 def init_db():
     conn = get_conn()

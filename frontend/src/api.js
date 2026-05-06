@@ -60,3 +60,15 @@ export async function apiLogin(username, password) {
     if (!res.ok) throw new Error('Failed to delete user')
     return res.json()
   }
+
+export async function apiGetCredentials() {
+  return
+}
+
+export async function apiPostCredentials() {
+  return
+}
+
+export async function apiPutCredentials() {
+  return
+}
