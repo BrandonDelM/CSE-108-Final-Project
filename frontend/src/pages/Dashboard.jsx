@@ -1,12 +1,6 @@
 import './Dashboard.css'
 
 export default function Dashboard({ user, onLogout }) {
-  const greeting = (() => {
-    const h = new Date().getHours()
-    if (h < 12) return 'Good morning'
-    if (h < 17) return 'Good afternoon'
-    return 'Good evening'
-  })()
 
   return (
     <div className="dash-root">
@@ -27,7 +21,7 @@ export default function Dashboard({ user, onLogout }) {
 
       <main className="dash-main container fade-in">
         <div className="dash-welcome">
-          <p className="dash-greeting">{greeting}, <strong>{user.username}</strong>.</p>
+          <p className="dash-greeting">Hello, <strong>{user.username}</strong>.</p>
         </div>
       </main>
     </div>
