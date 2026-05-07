@@ -17,10 +17,19 @@ export default function Dashboard({ user, onLogout, onSetupComplete }) {
 
   function switchMode(m) { setMode(m); reset() }
 
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     setError(''); setSuccess('')
     if (!email.trim() || !password) { setError('All fields are required.'); return }
+
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid Email Address')
+      return
+    }
 
     setLoading(true)
     try {

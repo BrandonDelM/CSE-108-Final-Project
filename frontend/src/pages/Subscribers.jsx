@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { DataGrid } from '@mui/x-data-grid';
 import { apiGetSubscribers, apiPostSubscriber, apiPutSubscriber, apiDeleteSubscriber } from '../api.js'
+import Papa from 'papaparse';
 
 function Subscribers({ user, onLogout, onNavigate }) {
     const [rows, setRows] = useState([])
@@ -21,10 +22,19 @@ function Subscribers({ user, onLogout, onNavigate }) {
         { field: 'last_name', headerName: 'Last Name', width: 300, editable: true },
     ];
 
+    function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    }
+
     async function handleSubmit(e) {
         e.preventDefault()
         setError(''); setSuccess('')
         if (!email.trim() || !first_name || !last_name) { setError('All fields are required.'); return }
+
+        if (!isValidEmail(email)) {
+            setError('Please enter a valid Email Address')
+            return
+        }
 
         setLoading(true)
         try {
@@ -37,6 +47,19 @@ function Subscribers({ user, onLogout, onNavigate }) {
             setLoading(false)
         }
     }
+
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function (results) {
+                console.log("Parsed JSON:", results.data);
+
+            },
+        });
+    };
+
 
     async function Set_Subscribers() {
         setError('')
@@ -83,6 +106,8 @@ function Subscribers({ user, onLogout, onNavigate }) {
                 <DataGrid rows={rows}
                     columns={columns}
                     getRowId={row => row.id} />
+
+                <input type="file" accept=".csv" onChange={handleFileUpload} />
 
                 <div className="dash-section">
                     <div className="dash-section-head">
