@@ -2,6 +2,7 @@ import './Subscribers.css'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid';
+import { apiGetSubscribers } from '../api.js'
 
 function Subscribers({ user, onLogout, onNavigate }) {
     const [loading, setLoading] = useState(false)
@@ -20,7 +21,7 @@ function Subscribers({ user, onLogout, onNavigate }) {
     useEffect(() => {
         async function Set_subscribers() {
             try {
-                const data = await apiGetCredentials(user.username)
+                const data = await apiGetSubscribers(user.username)
                 setEmail(data.email)
                 setPassword(data.password)
             } catch (err) {

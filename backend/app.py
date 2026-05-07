@@ -174,6 +174,52 @@ def put_campaign_credentials():
         return jsonify({"msg": "User not updated"}), 404
     return jsonify({"msg": f"{username} updated successfully"}), 200
 
+@app.route("/api/subscriber", methods=["GET"])
+def get_campaign_subscribers():
+    username: str = request.headers.get('X-Username')
+    subscribers = get_subscribers(username)
+    return subscribers
+
+@app.route("/api/subscriber", methods=["POST"])
+def post_campaign_subscribers():
+    data = request.get_json()
+    username: str = data.get('username')
+    email: str = data.get('email')
+    first_name: str = data.get('first_name')
+    last_name: str = data.get('last_name')
+    try:
+        post_subscriber(username, email, first_name, last_name)
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"msg": f"Subscriber not added: {e}"}), 404
+    return jsonify({"msg": f"{email} added successfully"}), 200
+
+@app.route("/api/subscriber", methods=["PUT"])
+def put_campaign_subscriber():
+    data = request.get_json()
+    username: str = data.get('username')
+    email: str = data.get('email')
+    first_name: str = data.get('first_name')
+    last_name: str = data.get('last_name')
+    try:
+        put_subscriber(username, email, first_name, last_name)
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"msg": f"Subscriber not updated: {e}"}), 404
+    return jsonify({"msg": f"{email} added successfully"}), 200
+
+
+def delete_subscriber():
+    data = request.get_json()
+    username: str = data.get('username')
+    email: str = data.get('email')
+    try:
+        delete_subscriber(username, email)
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"msg": f"Subscriber not deleted: {e}"}), 404
+    return jsonify({"msg": f"{email} added successfully"}), 200
+
 # ---------- Admin API ---------------------------------------------------------
 
 def require_admin():

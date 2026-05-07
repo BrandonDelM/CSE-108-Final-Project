@@ -91,3 +91,23 @@ export async function apiPutCredentials(username, email, password) {
   if (!res.ok) throw new Error('Failed to update role')
   return res.json()
 }
+
+export async function apiGetSubscribers(username) {
+
+  return
+}
+
+export async function apiPostSubscribers(username, first_name, last_name, email) {
+
+  return
+}
+
+export async function apiPutSubscribers(username, first_name, last_name, email) {
+
+  return
+}
+
+export async function apiDeleteSubscribers(username, email) {
+
+  return
+}
