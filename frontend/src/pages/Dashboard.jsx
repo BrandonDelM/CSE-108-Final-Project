@@ -1,7 +1,7 @@
 import './Dashboard.css'
 import { Link } from 'react-router-dom'
 
-export default function Dashboard({ user, onLogout }) {
+export default function Dashboard({ user, onLogout, onNavigate }) {
 
   return (
     <div className="dash-root">
@@ -39,15 +39,15 @@ export default function Dashboard({ user, onLogout }) {
           </div>
         </div>
         <div className="stat-row">
-          <Link to="/subscribers" className="stat-card" style={{ textDecoration: 'none' }}>
+          <Link to="/subscribers" className="stat-card card-hover" style={{ textDecoration: 'none' }}>
             <div className="stat-value">Manage Subscriptions</div>
             <div className="stat-label">Add and manage subscribers for your campaign</div>
           </Link>
-          <Link to="/draft" className="stat-card" style={{ textDecoration: 'none' }}>
+          <Link to="/mail" className="stat-card card-hover" style={{ textDecoration: 'none' }}>
             <div className="stat-value">Send mail</div>
             <div className="stat-label">Send emails to the subscribers of your campaigns</div>
           </Link>
-          <Link to="/settings" className="stat-card" style={{ textDecoration: 'none' }}>
+          <Link to="/settings" className="stat-card card-hover" style={{ textDecoration: 'none' }}>
             <div className="stat-value">Edit campaign settings</div>
             <div className="stat-label">Edit campaign email and password</div>
           </Link>

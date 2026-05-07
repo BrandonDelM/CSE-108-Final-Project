@@ -156,3 +156,12 @@
     animation: spin 0.7s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  .back-button {
+    background: rgba(110,184,154,0.12);
+    border: 1px solid rgba(110,184,154,0.25);
+    color: var(--sage);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
