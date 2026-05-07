@@ -183,16 +183,27 @@ def get_campaign_subscribers():
 @app.route("/api/subscriber", methods=["POST"])
 def post_campaign_subscribers():
     data = request.get_json()
-    username: str = data.get('username')
-    email: str = data.get('email')
-    first_name: str = data.get('first_name')
-    last_name: str = data.get('last_name')
-    try:
-        post_subscriber(username, email, first_name, last_name)
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"msg": f"Subscriber not added: {e}"}), 404
-    return jsonify({"msg": f"{email} added successfully"}), 200
+
+    subscribers = data if isinstance(data, list) else [data]
+    unsuccessfuls = []
+    successfuls = []
+
+    for subscriber in subscribers:
+        username = subscriber.get("username")
+        email = subscriber.get("email")
+        first_name = subscriber.get("first_name")
+        last_name = subscriber.get("last_name")
+        try:
+            post_subscriber(username, email, first_name, last_name)
+            successfuls.append(email)
+        except Exception as e:
+            print(f"Error: {e}")
+            unsuccessfuls.append({"email": email, "error": str(e)})
+    return jsonify({
+        "added": successfuls,
+        "errors": unsuccessfuls,
+        "msg": f"Successfully added {len(successfuls)} emails with {len(successfuls)} fails."
+    }), 200
 
 @app.route("/api/subscriber", methods=["PUT"])
 def put_campaign_subscriber():
@@ -208,8 +219,9 @@ def put_campaign_subscriber():
         return jsonify({"msg": f"Subscriber not updated: {e}"}), 404
     return jsonify({"msg": f"{email} added successfully"}), 200
 
+
 @app.route("/api/subscriber", methods=["DELETE"])
-def delete_subscriber():
+def delete_campaign_subscriber():
     data = request.get_json()
     username: str = data.get('username')
     email: str = data.get('email')

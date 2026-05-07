@@ -65,6 +65,7 @@ def get_subscribers(username: str):
         return None
     conn.close()
     return [dict(row) for row in rows]
+    
 
 def post_subscriber(username: str, email: str, first_name: str, last_name: str):
     init_subscribers_db()

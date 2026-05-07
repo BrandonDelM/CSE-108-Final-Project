@@ -38,9 +38,13 @@ function Subscribers({ user, onLogout, onNavigate }) {
 
         setLoading(true)
         try {
-            await apiPostSubscriber(user.username, email, first_name, last_name)
+            await apiPostSubscriber({"username": user.username, 
+                                    "email": email, 
+                                    "first_name": first_name,
+                                    "last_name": last_name})
             await Set_Subscribers()
             setSuccess('User successfully added')
+            setEmail(''); setFirstName(''); setLastName('')
         } catch (err) {
             setError(err.message)
         } finally {
@@ -53,9 +57,26 @@ function Subscribers({ user, onLogout, onNavigate }) {
         Papa.parse(file, {
             header: true,
             skipEmptyLines: true,
-            complete: function (results) {
+            transformHeader: function(header) {
+                return header.toLowerCase();
+            },
+            complete: async function (results) {
                 console.log("Parsed JSON:", results.data);
-
+                const subscribers = results.data.map(
+                    row => ({
+                        username: user.username,
+                        email: row.email,
+                        first_name: row.first_name,
+                        last_name: row.last_name
+                    })
+                )
+                try {
+                    await apiPostSubscriber(subscribers)
+                    await Set_Subscribers()
+                    setSuccess(`Successfully added all subscribers`)
+                } catch (err) {
+                    setError(err.message)
+                }
             },
         });
     };
@@ -107,7 +128,9 @@ function Subscribers({ user, onLogout, onNavigate }) {
                     columns={columns}
                     getRowId={row => row.id} />
 
-                <input type="file" accept=".csv" onChange={handleFileUpload} />
+                <label className="btn btn-ghost btn-sm" title="Format: email,first_name,last_name" style={{ cursor: 'pointer'}}>Upload CSV File
+                    <input id="file-upload" type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileUpload} />
+                </label>
 
                 <div className="dash-section">
                     <div className="dash-section-head">
@@ -131,9 +154,9 @@ function Subscribers({ user, onLogout, onNavigate }) {
                     </div>
 
                     <div className="field-group">
-                        <label className="field-label" htmlFor="last">Enter First Name</label>
+                        <label className="field-label" htmlFor="first">Enter First Name</label>
                         <input
-                            id="last"
+                            id="first"
                             className="field-input"
                             type="text"
                             placeholder="John"
@@ -144,9 +167,9 @@ function Subscribers({ user, onLogout, onNavigate }) {
                     </div>
 
                     <div className="field-group">
-                        <label className="field-label" htmlFor="first">Enter Last Name</label>
+                        <label className="field-label" htmlFor="last">Enter Last Name</label>
                         <input
-                            id="first"
+                            id="last"
                             className="field-input"
                             type="text"
                             placeholder="Doe"
@@ -157,6 +180,7 @@ function Subscribers({ user, onLogout, onNavigate }) {
                     </div>
 
                     {error && <p className="auth-error">{error}</p>}
+                    {success && <p className="auth-success">{success}</p>}
 
                     <button
                         type="submit"

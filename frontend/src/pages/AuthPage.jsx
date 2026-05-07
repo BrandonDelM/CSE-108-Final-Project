@@ -26,10 +26,10 @@ export default function AuthPage({ onLogin }) {
     setError(''); setSuccess('')
     if (!username.trim() || !password) { setError('All fields are required.'); return }
 
-    if (!isValidEmail(email)) {
-      setError('Please enter a valid Email Address')
-      return
-    }
+    // if (!isValidEmail(email)) {
+    //   setError('Please enter a valid Email Address')
+    //   return
+    // }
 
     if (mode === 'register') {
       if (password !== confirm) { setError('Passwords do not match.'); return }
