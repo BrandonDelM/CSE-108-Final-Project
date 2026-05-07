@@ -286,3 +286,21 @@
 .MuiSelect-select {
   color: var(--text-3) !important;
 }
+
+.MuiButtonBase-root {
+  color: var(--text-3) !important;
+}
+
+.MuiDataGrid-paper {
+  background: var(--ink-3) !important;
+  color: var(--text-1) !important;
+}
+
+.MuiInputBase-root {
+  color: var(--text-1) !important;
+  border-color: var(--text-2) !important;
+}
+
+.MuiTypography-root {
+  color: var(--text-1) !important;
+}

@@ -50,7 +50,7 @@ export default function Dashboard({ user, onLogout, onNavigate }) {
             <div className="stat-label">Send emails to the subscribers of your campaigns</div>
           </Link>
           <Link to="/settings" className="stat-card card-hover" style={{ textDecoration: 'none' }}>
-            <div className="stat-value">Edit campaign settings</div>
+            <div className="stat-value">Campaign settings</div>
             <div className="stat-label">Edit campaign email and password</div>
           </Link>
         </div>

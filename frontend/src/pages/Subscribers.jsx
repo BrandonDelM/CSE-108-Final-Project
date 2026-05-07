@@ -126,7 +126,8 @@ function Subscribers({ user, onLogout, onNavigate }) {
 
                 <DataGrid rows={rows}
                     columns={columns}
-                    getRowId={row => row.id} />
+                    getRowId={row => row.id}
+                    showToolbar />
 
                 <label className="btn btn-ghost btn-sm" title="Format: email,first_name,last_name" style={{ cursor: 'pointer'}}>Upload CSV File
                     <input id="file-upload" type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileUpload} />
