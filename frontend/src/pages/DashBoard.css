@@ -152,6 +152,12 @@
     height: 2px;
     background: var(--accent-color, var(--amber));
   }
+
+  .card-hover:hover {
+    background: var(--ink-3);
+    transform: scale(1.01);
+  }
+
   .stat-value {
     font-family: var(--font-head);
     font-size: 38px;

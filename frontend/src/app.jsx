@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { checkSession, apiLogout } from './api.js'
 import AuthPage from './pages/AuthPage.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import SetUp from './pages/SetUp.jsx'
+import Subscribers from './pages/Subscribers.jsx'
+import SendMail from './pages/Mail.jsx'
+import Settings from './pages/Settings.jsx'
 
 export default function App() {
-  const [user, setUser]       = useState(null)
-  const [ready, setReady]     = useState(false)
+  const [user, setUser] = useState(null)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     checkSession().then(data => {
@@ -36,8 +40,21 @@ export default function App() {
     </div>
   )
 
-  console.log(user)
-  if (!user) return <AuthPage onLogin={setUser} />
-  if (!user.is_setup) return <SetUp user={user} onLogout={handleLogout} onSetupComplete={() => setUser(u => ({ ...u, is_setup: true }))} />
-  return <Dashboard user={user} onLogout={handleLogout} />
+  if (!user) {
+    return <AuthPage onLogin={setUser} />
+  }
+  if (!user.is_setup) {
+    return <SetUp user={user} onLogout={handleLogout} onSetupComplete={() => setUser(u => ({ ...u, is_setup: true }))} />
+  }
+
+  const props = { user, onLogout: handleLogout }
+  return (
+    <Routes>
+      <Route path="/" element={<Dashboard {...props} />} />
+      <Route path="/subscribers" element={<Subscribers {...props} />} />
+      <Route path="/send" element={<SendMail {...props} />} />
+      <Route path="/settings" element={<Settings {...props} />} />
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  )
 }

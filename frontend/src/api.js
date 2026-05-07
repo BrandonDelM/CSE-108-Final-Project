@@ -81,7 +81,7 @@ export async function apiPostCredentials(username, email, password) {
   return res.json()
 }
 
-export async function apiPutCredentials() {
+export async function apiPutCredentials(username, email, password) {
   let data = {"username": username, "email": email, "password": password}
   const res = await fetch('/api/credentials', {
       method: 'PUT',
