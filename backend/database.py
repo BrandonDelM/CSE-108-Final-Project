@@ -51,6 +51,21 @@ def put_credentials(username: str, email: str, password: str):
         print(f'Error: {e}')
     conn.close()
 
+def init_subscribers_db():
+    conn = get_conn()
+    c = conn.cursor()
+    c.executescript("""
+        CREATE TABLE IF NOT EXISTS credentials (
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT     NOT NULL,
+            email TEXT        NOT NULL,
+            first_name TEXT   NOT NULL,
+            last_name TEXT    NOT NULL
+        );
+    """)
+    conn.commit()
+    conn.close()
+
 def init_credentials_db():
     conn = get_conn()
     c = conn.cursor()
