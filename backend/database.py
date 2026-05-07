@@ -3,12 +3,67 @@ import os
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "database.db")
 
-
 def get_conn():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
+def get_credentials_username(username: str):
+    init_credentials_db()
+    conn = get_conn()
+    c = conn.cursor()
+    try:
+        c.execute(
+            "SELECT * FROM credentials where username = ?", (username,)
+        )
+        credentials = c.fetchone()
+    except sqlite3.IntegrityError as e:
+        print(f'Error: {e}')
+        credentials = None
+    conn.close()
+    return credentials
+
+
+def post_credentials(username: str, email: str, password: str):
+    init_credentials_db()
+    conn = get_conn()
+    c = conn.cursor()
+    try:
+        c.execute(
+            "INSERT INTO credentials (username, email, password) VALUES (?, ?, ?)",
+            (username, email, password),
+        )
+        conn.commit()
+    except sqlite3.IntegrityError as e:
+        print(f'Error: {e}')
+    conn.close()
+
+def put_credentials(username: str, email: str, password: str): 
+    init_credentials_db()
+    conn = get_conn()
+    c = conn.cursor()
+    try:
+        c.execute(
+            "UPDATE credentials SET email = ?, password = ? WHERE username = ?", (email, password, username)
+        )
+        conn.commit()
+    except sqlite3.IntegrityError as e:
+        print(f'Error: {e}')
+    conn.close()
+
+def init_credentials_db():
+    conn = get_conn()
+    c = conn.cursor()
+    c.executescript("""
+        CREATE TABLE IF NOT EXISTS credentials (
+            id       INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT    NOT NULL UNIQUE,
+            email TEXT    NOT NULL UNIQUE,
+            password     TEXT    NOT NULL
+        );
+    """)
+    conn.commit()
+    conn.close()
 
 def init_db():
     conn = get_conn()
@@ -24,13 +79,15 @@ def init_db():
     conn.commit()
     conn.close()
 
-
 # ── Users ────────────────────────────────────────────────────────────────────
 
 def get_user_by_username(username: str):
+    init_credentials_db()
     conn = get_conn()
     c = conn.cursor()
-    c.execute("SELECT * FROM users WHERE username = ?", (username,))
+    c.execute("""SELECT u.id, u.username, u.role, u.password, c.email FROM users u
+              LEFT JOIN credentials c ON c.username = u.username
+              WHERE u.username = ?""", (username,))
     row = c.fetchone()
     conn.close()
     return dict(row) if row else None

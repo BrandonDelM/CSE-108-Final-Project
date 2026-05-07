@@ -10,10 +10,7 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_sqlalchemy import SQLAlchemy
 from datetime import timedelta
-from database import (
-    init_db, get_user_by_username, get_user_by_id,
-    create_user, get_all_users, update_user_role, delete_user,
-)
+from database import *
 import os
 
 # ── App setup ────────────────────────────────────────────────────────────────
@@ -143,8 +140,41 @@ def session():
     user = current_user()
     if not user:
         return jsonify({"msg": "User not found"}), 404
-    return jsonify({"id": user["id"], "username": user["username"], "role": user["role"]})
+    return jsonify({"id": user["id"], "username": user["username"], "role": user["role"], "is_setup": user["email"] is not None})
 
+@app.route("/api/credentials", methods=["GET"])
+def get_campaign_credentials():
+    username: str = request.headers.get('X-Username')
+    user = get_credentials_username(username)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+    return jsonify({"username": user["username"], "email": user["email"], "password": user["password"]}), 200
+
+@app.route("/api/credentials", methods=["POST"])
+def post_campaign_credentials():
+    data = request.get_json()
+    username: str = data.get('username')
+    email: str = data.get('email')
+    password: str = data.get('password')
+    try:
+        post_credentials(username, email, password)
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"msg": "User not added"}), 404
+    return jsonify({"msg": f"{username} added successfully"}), 200
+
+@app.route("/api/credentials", methods=["PUT"])
+def put_campaign_credentials():
+    data = request.get_json()
+    username: str = data.get('username')
+    email: str = data.get('email')
+    password: str = data.get('password')
+    try:
+        put_credentials(username, email, password)
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"msg": "User not updated"}), 404
+    return jsonify({"msg": f"{username} updated successfully"}), 200
 
 # ---------- Admin API ---------------------------------------------------------
 
@@ -189,7 +219,6 @@ def api_delete_user(uid):
         return err
     delete_user(uid)
     return jsonify({"msg": "Deleted"})
-
 
 # ── Startup ───────────────────────────────────────────────────────────────────
 

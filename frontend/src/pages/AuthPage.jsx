@@ -54,12 +54,12 @@ export default function AuthPage({ onLogin }) {
         <div className="auth-form-wrap fade-in">
 
           <div className="auth-logo">
-            <span className="auth-logo-mark">H</span>
-            <span className="auth-logo-text">Horror Game</span>
+            <span className="auth-logo-mark">G</span>
+            <span className="auth-logo-text">GoMail</span>
           </div>
 
           <h1 className="auth-heading">
-            {mode === 'login' ? <>Welcome Back. <br /></> : <>Create<br /><em>account.</em></>}
+            {mode === 'login' ? <>A personalized email campaign. <br /></> : <>Create<br /><em>account.</em></>}
           </h1>
           <p className="auth-sub">
             {mode === 'login'

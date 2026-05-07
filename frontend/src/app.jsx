@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { checkSession, apiLogout } from './api.js'
 import AuthPage from './pages/AuthPage.jsx'
 import Dashboard from './pages/Dashboard.jsx'
+import SetUp from './pages/SetUp.jsx'
 
 export default function App() {
   const [user, setUser]       = useState(null)
@@ -35,7 +36,8 @@ export default function App() {
     </div>
   )
 
+  console.log(user)
   if (!user) return <AuthPage onLogin={setUser} />
-
+  if (!user.is_setup) return <SetUp user={user} onLogout={handleLogout} onSetupComplete={() => setUser(u => ({ ...u, is_setup: true }))} />
   return <Dashboard user={user} onLogout={handleLogout} />
 }

@@ -1,20 +1,15 @@
 import './Dashboard.css'
+import { Link } from 'react-router-dom'
 
 export default function Dashboard({ user, onLogout }) {
-  const greeting = (() => {
-    const h = new Date().getHours()
-    if (h < 12) return 'Good morning'
-    if (h < 17) return 'Good afternoon'
-    return 'Good evening'
-  })()
 
   return (
     <div className="dash-root">
       <header className="dash-header">
         <div className="container dash-header-inner">
           <div className="dash-brand">
-            <span className="dash-brand-mark">H</span>
-            <span className="dash-brand-name">Horror Game</span>
+            <span className="dash-brand-mark">G</span>
+            <span className="dash-brand-name">GoMail</span>
           </div>
           <div className="dash-header-right">
             <span className="dash-username">{user.username}</span>
@@ -27,7 +22,35 @@ export default function Dashboard({ user, onLogout }) {
 
       <main className="dash-main container fade-in">
         <div className="dash-welcome">
-          <p className="dash-greeting">{greeting}, <strong>{user.username}</strong>.</p>
+          <p className="dash-greeting">Hello, <strong>{user.username}</strong>.</p>
+        </div>
+        <div className="stat-row">
+          <div className="stat-card">
+            <div className="stat-value">#</div>
+            <div className="stat-label">Emails Sent</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">#</div>
+            <div className="stat-label">Emails Created</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value">#</div>
+            <div className="stat-label">Subscriptions</div>
+          </div>
+        </div>
+        <div className="stat-row">
+          <Link to="/subscribers" className="stat-card" style={{ textDecoration: 'none' }}>
+            <div className="stat-value">Manage Subscriptions</div>
+            <div className="stat-label">Add and manage subscribers for your campaign</div>
+          </Link>
+          <Link to="/draft" className="stat-card" style={{ textDecoration: 'none' }}>
+            <div className="stat-value">Send mail</div>
+            <div className="stat-label">Send emails to the subscribers of your campaigns</div>
+          </Link>
+          <Link to="/settings" className="stat-card" style={{ textDecoration: 'none' }}>
+            <div className="stat-value">Edit campaign settings</div>
+            <div className="stat-label">Edit campaign email and password</div>
+          </Link>
         </div>
       </main>
     </div>
