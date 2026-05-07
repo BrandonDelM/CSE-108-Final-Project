@@ -149,6 +149,8 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
   }
   .dash-section-head { display: flex; flex-direction: column; gap: 4px; }
   .dash-section-head h2 {

@@ -98,10 +98,10 @@ export async function apiGetSubscribers(username) {
     headers: { 'Content-Type': 'application/json', 'X-Username': username },
   })
   if (!res.ok) throw new Error('Failed to query credentials')
-  return
+  return res.json()
 }
 
-export async function apiPostSubscribers(username, email, first_name, last_name) {
+export async function apiPostSubscriber(username, email, first_name, last_name) {
   let data = { "username": username, "email": email, "first_name": first_name, "last_name": last_name }
   const res = await fetch('/api/subscriber', {
     method: 'POST',
@@ -109,12 +109,11 @@ export async function apiPostSubscribers(username, email, first_name, last_name)
     headers: { 'Content-Type': 'application/json' },
   })
   if (!res.ok) throw new Error('Failed to add credentials')
-  return
+  return res.json()
 }
 
-export async function apiPutSubscribers(username, email, first_name, last_name) {
+export async function apiPutSubscriber(username, email, first_name, last_name) {
   let data = { "username": username, "email": email, "first_name": first_name, "last_name": last_name }
-  let data = { "username": username, "email": email, "password": password }
   const res = await fetch('/api/subscriber', {
     method: 'PUT',
     body: JSON.stringify(data),
@@ -122,12 +121,10 @@ export async function apiPutSubscribers(username, email, first_name, last_name) 
   })
   if (!res.ok) throw new Error('Failed to update credentials')
   return res.json()
-  return
 }
 
-export async function apiDeleteSubscribers(username, email) {
+export async function apiDeleteSubscriber(username, email) {
   let data = { "username": username, "email": email }
-  let data = { "username": username, "email": email, "password": password }
   const res = await fetch('/api/subscriber', {
     method: 'DELETE',
     body: JSON.stringify(data),
@@ -135,5 +132,4 @@ export async function apiDeleteSubscribers(username, email) {
   })
   if (!res.ok) throw new Error('Failed to update credentials')
   return res.json()
-  return
 }

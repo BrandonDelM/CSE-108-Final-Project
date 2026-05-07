@@ -56,15 +56,15 @@ def get_subscribers(username: str):
     conn = get_conn()
     c = conn.cursor()
     try:
-        c.execute('''SELECT email, first_name, last_name 
+        c.execute('''SELECT id, email, first_name, last_name 
                    FROM subscribers
                    WHERE username = ?''', (username,))
-        data = c.fetchall()
+        rows = c.fetchall()
     except Exception as e:
         print(f"Error: {e}")
         return None
     conn.close()
-    return dict(data) if data else None
+    return [dict(row) for row in rows]
 
 def post_subscriber(username: str, email: str, first_name: str, last_name: str):
     init_subscribers_db()
