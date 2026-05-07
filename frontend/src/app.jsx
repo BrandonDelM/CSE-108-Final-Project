@@ -52,7 +52,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Dashboard {...props} />} />
       <Route path="/subscribers" element={<Subscribers {...props} />} />
-      <Route path="/send" element={<SendMail {...props} />} />
+      <Route path="/mail" element={<SendMail {...props} />} />
       <Route path="/settings" element={<Settings {...props} />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
