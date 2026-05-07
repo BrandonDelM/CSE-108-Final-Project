@@ -208,7 +208,7 @@ def put_campaign_subscriber():
         return jsonify({"msg": f"Subscriber not updated: {e}"}), 404
     return jsonify({"msg": f"{email} added successfully"}), 200
 
-
+@app.route("/api/subscriber", methods=["DELETE"])
 def delete_subscriber():
     data = request.get_json()
     username: str = data.get('username')
