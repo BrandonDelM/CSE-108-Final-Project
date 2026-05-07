@@ -21,9 +21,11 @@ export default function Dashboard({ user, onLogout, onNavigate }) {
       </header>
 
       <main className="dash-main container fade-in">
-        <div className="dash-welcome">
-          <p className="dash-greeting">Hello, <strong>{user.username}</strong>.</p>
-        </div>
+        <div className="dash-section">
+                    <div className="dash-section-head">
+                        <h2>Welcome back, {user.username}.</h2>
+                    </div>
+                </div>
         <div className="stat-row">
           <div className="stat-card">
             <div className="stat-value">#</div>
