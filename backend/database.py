@@ -121,6 +121,19 @@ def get_campaign_username(id: str):
     conn.close()
     return row["username"] if row else None
 
+def get_campaign_id(username: str):
+    init_subscribers_db()
+    conn = get_conn()
+    c = conn.cursor()
+    try:
+        c.execute("SELECT id FROM credentials WHERE username = ?", (username,))
+        row = c.fetchone()
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+    conn.close()
+    return row["id"] if row else None
+
 def init_subscribers_db():
     conn = get_conn()
     c = conn.cursor()

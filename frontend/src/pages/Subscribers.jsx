@@ -2,7 +2,7 @@ import './Subscribers.css'
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { DataGrid } from '@mui/x-data-grid';
-import { apiGetSubscribers, apiPostSubscriber, apiPutSubscriber, apiDeleteSubscriber } from '../api.js'
+import { apiGetSubscribers, apiPostSubscriber, apiPutSubscriber, apiDeleteSubscriber, apiGetCampaignId } from '../api.js'
 import Papa from 'papaparse';
 
 function Subscribers({ user, onLogout }) {
@@ -15,6 +15,7 @@ function Subscribers({ user, onLogout }) {
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
     const [loading, setLoading] = useState(false)
+    const [campaignId, setCampaignId] = useState('')
 
     const columns = [
         { field: 'email', headerName: 'Email', width: 500, editable: true },
@@ -38,10 +39,12 @@ function Subscribers({ user, onLogout }) {
 
         setLoading(true)
         try {
-            await apiPostSubscriber({"username": user.username, 
-                                    "email": email, 
-                                    "first_name": first_name,
-                                    "last_name": last_name})
+            await apiPostSubscriber({
+                "username": user.username,
+                "email": email,
+                "first_name": first_name,
+                "last_name": last_name
+            })
             await Set_Subscribers()
             setSuccess('User successfully added')
             setEmail('')
@@ -70,7 +73,7 @@ function Subscribers({ user, onLogout }) {
         Papa.parse(file, {
             header: true,
             skipEmptyLines: true,
-            transformHeader: function(header) {
+            transformHeader: function (header) {
                 return header.toLowerCase();
             },
             complete: async function (results) {
@@ -105,8 +108,18 @@ function Subscribers({ user, onLogout }) {
         }
     }
 
+    async function SetCampaignId() {
+        try {
+            const data = await apiGetCampaignId(user.username)
+            setCampaignId(data)
+        } catch (err) { 
+            setError('Failed to get campaign id')
+        }
+    }
+
     useEffect(() => {
         Set_Subscribers()
+        SetCampaignId()
     }, [])
 
     return (
@@ -142,10 +155,27 @@ function Subscribers({ user, onLogout }) {
                     getRowId={row => row.id}
                     processRowUpdate={handleRowUpdate}
                     onProcessRowUpdateError={err => setError(err.message)}
-                    showToolbar 
-                    />
+                    showToolbar
+                />
 
-                <label className="btn btn-ghost btn-sm" title="Format: email,first_name,last_name" style={{ cursor: 'pointer'}}>Upload CSV File
+                <div className="field-group">
+                    <label className="field-label">Signup Page</label>
+                    <input
+                        className="field-input"
+                        type="text"
+                        readOnly
+                        value={`${window.location.origin}/signup/${campaignId}`}
+                        onClick={e => e.target.select()}
+                    />
+                </div>
+
+                <div className="dash-section">
+                    <div className="dash-section-head">
+                        <h2>Add to Mailing List</h2>
+                    </div>
+                </div>
+
+                <label className="btn btn-ghost btn-sm" title="Format: email,first_name,last_name" style={{ cursor: 'pointer' }}>Upload CSV File
                     <input id="file-upload" type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileUpload} />
                 </label>
 
