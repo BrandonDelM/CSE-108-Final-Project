@@ -1,7 +1,7 @@
 import './Dashboard.css'
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
-import { apiLogin, apiPostCredentials, apiRegister, apiPutCredentials } from '../api.js'
+import { useState, useEffect } from 'react'
+import { apiLogin, apiGetCredentials, apiPostCredentials, apiRegister, apiPutCredentials } from '../api.js'
 
 function Settings({ user, onLogout, onNavigate }) {
 
@@ -12,6 +12,8 @@ function Settings({ user, onLogout, onNavigate }) {
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
     const [loading, setLoading] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
+
 
     function reset() {
         setEmail(''); setPassword(''); setConfirm(''); setError(''); setSuccess('')
@@ -34,6 +36,21 @@ function Settings({ user, onLogout, onNavigate }) {
             setLoading(false)
         }
     }
+
+    useEffect(() => {
+        async function Set_Credentials() {
+            try {
+                const data = await apiGetCredentials(user.username)
+                setEmail(data.email)
+                setPassword(data.password)
+            } catch (err) {
+                setEmail('')
+                setPassword('')
+                setError('Failed to load credentials')
+            }
+        }
+        Set_Credentials()
+    }, [])
 
     return (
         <div className="dash-root">
@@ -77,16 +94,24 @@ function Settings({ user, onLogout, onNavigate }) {
 
                     <div className="field-group">
                         <label className="field-label" htmlFor="password">Change Campaign Email Password</label>
-                        <input
-                            id="password"
-                            className="field-input"
-                            type="password"
-                            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            disabled={loading}
-                        />
+                        <div style={{display: 'flex', gap: '10px'}}>
+                            <input
+                                id="password"
+                                className="field-input"
+                                type={showPassword ? 'test' : 'password'}
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                disabled={loading}
+                            />
+                            <label className="field-label" htmlFor="visibility">Show Password</label>
+                            <input
+                                id="visibility"
+                                className="field-checkbox"
+                                type="checkbox"
+                                onClick={() => setShowPassword(prev => !prev)}
+                            />
+                        </div>
                     </div>
 
                     {error && <p className="auth-error">{error}</p>}
