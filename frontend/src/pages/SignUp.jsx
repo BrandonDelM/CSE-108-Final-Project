@@ -6,14 +6,15 @@ import { apiGetCampaignUsername } from '../api'
 function SignUp() {
     const { campaignId } = useParams()
     const [mode, setMode] = useState('login')
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
     const [confirm, setConfirm] = useState('')
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
     const [loading, setLoading] = useState(false)
 
     const [username, setUsername] = useState('')
+    const [email, setEmail] = useState('')
+    const [firstName, setFirstName] = useState('')
+    const [lastName, setLastName] = useState('')
 
     function reset() {
         setEmail(''); setPassword(''); setConfirm(''); setError(''); setSuccess('')
@@ -79,7 +80,7 @@ function SignUp() {
 
                 <form onSubmit={handleSubmit} className="auth-form" noValidate>
                     <div className="field-group">
-                        <label className="field-label" htmlFor="email">Enter Your Campaign Email</label>
+                        <label className="field-label" htmlFor="email">Email</label>
                         <input
                             id="email"
                             className="field-input"
@@ -93,15 +94,29 @@ function SignUp() {
                     </div>
 
                     <div className="field-group">
-                        <label className="field-label" htmlFor="password">Enter Your Campaign Email Password</label>
+                        <label className="field-label" htmlFor="first-name">First Name</label>
                         <input
-                            id="password"
+                            id="first-name"
                             className="field-input"
-                            type="password"
-                            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
+                            type="text"
+                            autoComplete="first-name"
+                            placeholder="John"
+                            value={firstName}
+                            onChange={e => setFirstName(e.target.value)}
+                            disabled={loading}
+                        />
+                    </div>
+
+                    <div className="field-group">
+                        <label className="field-label" htmlFor="last-name">Last Name</label>
+                        <input
+                            id="last-name"
+                            className="field-input"
+                            type="text"
+                            autoComplete="last-name"
+                            placeholder="Doe"
+                            value={lastName}
+                            onChange={e => setLastName(e.target.value)}
                             disabled={loading}
                         />
                     </div>

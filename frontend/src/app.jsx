@@ -9,7 +9,7 @@ import SendMail from './pages/Mail.jsx'
 import Settings from './pages/Settings.jsx'
 import SignUp from './pages/SignUp.jsx'
 
-function AuthedRoutes({ user, onLogout }) {
+function SignedInRoutes({ user, onLogout }) {
   const props = { user, onLogout }
   return (
     <Routes>
@@ -65,16 +65,11 @@ export default function App() {
   const props = { user, onLogout: handleLogout }
   return (
     <Routes>
-      {/* Public — no auth required */}
       <Route path="/signup/:campaignId" element={<SignUp />} />
-
-      {/* Auth gate */}
       <Route path="*" element={
-        !user
-          ? <AuthPage onLogin={setUser} />
-          : !user.is_setup
-            ? <SetUp user={user} onLogout={handleLogout} onSetupComplete={() => setUser(u => ({ ...u, is_setup: true }))} />
-            : <AuthedRoutes user={user} onLogout={handleLogout} />
+        !user ? <AuthPage onLogin={setUser} /> : 
+            !user.is_setup ? <SetUp user={user} onLogout={handleLogout} onSetupComplete={() => setUser(u => ({ ...u, is_setup: true }))} />
+              : <SignedInRoutes user={user} onLogout={handleLogout} />
       } />
     </Routes>
   )

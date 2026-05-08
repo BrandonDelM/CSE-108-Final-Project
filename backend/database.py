@@ -114,7 +114,7 @@ def get_campaign_username(id: str):
     conn = get_conn()
     c = conn.cursor()
     try:
-        c.execute("SELECT username FROM users WHERE id = ?", (id,))
+        c.execute("SELECT username FROM credentials WHERE id = ?", (id,))
         row = c.fetchone()
     except Exception as e:
         print(f"Error: {e}")
