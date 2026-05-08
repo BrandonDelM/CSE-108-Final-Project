@@ -131,3 +131,23 @@ export async function apiDeleteSubscriber(username, email) {
   if (!res.ok) throw new Error('Failed to update credentials')
   return res.json()
 }
+
+export async function apiGetEmails(username) {
+  const res = await fetch('/api/users/emails', {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json', 'X-Username': username },
+    credentials: 'include'
+  })
+  if (!res.ok) throw new Error('Failed to fetch emails')
+  return res.json()
+}
+
+export async function apiGetSentEmails(username) {
+  const res = await fetch('/api/users/sent', {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json', 'X-Username': username },
+    credentials: 'include'
+  })
+  if (!res.ok) throw new Error('Failed to fetch emails')
+  return res.json()
+}

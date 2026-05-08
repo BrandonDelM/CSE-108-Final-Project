@@ -13,8 +13,6 @@ from datetime import timedelta
 from database import *
 import os
 
-# ── App setup ────────────────────────────────────────────────────────────────
-
 app = Flask(__name__)
 
 app.config["SECRET_KEY"]                 = "change-me-in-production"
@@ -36,16 +34,12 @@ db     = SQLAlchemy(app)
 CORS(app, origins=["http://127.0.0.1:5173", "http://localhost:5173"],
      supports_credentials=True)
 
-# ── SQLAlchemy models (for Flask-Admin only) ──────────────────────────────────
-
 class User(db.Model):
     __tablename__ = "users"
     id       = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     role     = db.Column(db.String, nullable=False, default="student")
-
-# ── Flask-Admin ──────────────────────────────────────────────────────────────
 
 class SecureAdminView(ModelView):
     column_exclude_list    = ["password"]
@@ -72,20 +66,13 @@ class SecureAdminView(ModelView):
 admin = Admin(app, name="Admin Panel")
 admin.add_view(SecureAdminView(User, db.session))
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
 def current_user():
     username = get_jwt_identity()
     return get_user_by_username(username)
 
-# ── Routes ────────────────────────────────────────────────────────────────────
-
 @app.route("/")
 def index():
     return "", 204
-
-
-# ---------- Auth --------------------------------------------------------------
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -232,8 +219,6 @@ def delete_campaign_subscriber():
         return jsonify({"msg": f"Subscriber not deleted: {e}"}), 404
     return jsonify({"msg": f"{email} added successfully"}), 200
 
-# ---------- Admin API ---------------------------------------------------------
-
 def require_admin():
     """Call inside a route; returns (user, None) or (None, error_response)."""
     try:
@@ -253,6 +238,21 @@ def api_users():
         return err
     return jsonify(get_all_users())
 
+@app.route("/api/users/emails", methods=["GET"])
+def api_get_users_emails():
+    username: str = request.headers.get('X-Username')
+    email = get_user_emails(username)
+    if email is None:
+        return jsonify({"msg": "Email not found"}), 404
+    return jsonify(email), 200
+
+@app.route("/api/users/sent", methods=["GET"])
+def api_get_users_sent_emails():
+    username: str = request.headers.get('X-Username')
+    email = get_user_sent_emails(username)
+    if email is None:
+        return jsonify({"msg": "Email not found"}), 404
+    return jsonify(email), 200
 
 @app.route("/api/users/<int:uid>", methods=["PATCH"])
 def api_update_user(uid):

@@ -44,7 +44,9 @@ function Subscribers({ user, onLogout, onNavigate }) {
                                     "last_name": last_name})
             await Set_Subscribers()
             setSuccess('User successfully added')
-            setEmail(''); setFirstName(''); setLastName('')
+            setEmail('')
+            setFirstName('')
+            setLastName('')
         } catch (err) {
             setError(err.message)
         } finally {
