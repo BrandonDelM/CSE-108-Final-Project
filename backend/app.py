@@ -18,8 +18,8 @@ app = Flask(__name__)
 app.config["SECRET_KEY"]                 = "change-me-in-production"
 app.config["JWT_SECRET_KEY"]             = "jwt-change-me-in-production"
 app.config["JWT_TOKEN_LOCATION"]         = ["cookies"]
-app.config["JWT_COOKIE_SECURE"]          = False   # True in prod (HTTPS)
-app.config["JWT_COOKIE_CSRF_PROTECT"]    = False   # enable in prod
+app.config["JWT_COOKIE_SECURE"]          = False
+app.config["JWT_COOKIE_CSRF_PROTECT"]    = False
 app.config["JWT_COOKIE_SAMESITE"]        = "Lax"
 app.config["JWT_SESSION_COOKIE"]         = False
 app.config["JWT_ACCESS_TOKEN_EXPIRES"]   = timedelta(hours=2)

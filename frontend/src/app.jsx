@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { useState, useEffect, React } from 'react'
+import { Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { checkSession, apiLogout } from './api.js'
 import AuthPage from './pages/AuthPage.jsx'
 import Dashboard from './pages/Dashboard.jsx'
@@ -61,6 +61,8 @@ export default function App() {
   if (!user.is_setup) {
     return <SetUp user={user} onLogout={handleLogout} onSetupComplete={() => setUser(u => ({ ...u, is_setup: true }))} />
   }
+
+
 
   const props = { user, onLogout: handleLogout }
   return (

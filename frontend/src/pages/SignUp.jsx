@@ -1,12 +1,10 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useState, React, useEffect } from 'react'
 import './DashBoard.css'
-import { apiGetCampaignUsername } from '../api'
+import { apiGetCampaignUsername, apiPostSubscriber } from '../api'
 
 function SignUp() {
     const { campaignId } = useParams()
-    const [mode, setMode] = useState('login')
-    const [confirm, setConfirm] = useState('')
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
     const [loading, setLoading] = useState(false)
@@ -16,9 +14,20 @@ function SignUp() {
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
 
-    function reset() {
-        setEmail(''); setPassword(''); setConfirm(''); setError(''); setSuccess('')
-    }
+    const navigate = useNavigate()
+    const [valid, setValid] = useState(null)
+
+    useEffect(() => {
+        async function checkCampaign() {
+            try {
+                await apiGetCampaignUsername(campaignId)
+                setValid(true)
+            } catch (err) {
+                navigate('/')
+            }
+        }
+        checkCampaign()
+    }, [campaignId])
 
     async function GetUsername() {
         setUsername('')
@@ -28,14 +37,11 @@ function SignUp() {
         } catch (err) {
             setError("Couldn't fetch campaign username")
         }
-
     }
 
     useEffect(() => {
         GetUsername()
     }, [])
-
-    function switchMode(m) { setMode(m); reset() }
 
     function isValidEmail(email) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
@@ -44,7 +50,7 @@ function SignUp() {
     async function handleSubmit(e) {
         e.preventDefault()
         setError(''); setSuccess('')
-        if (!email.trim() || !password) { setError('All fields are required.'); return }
+        if (!email.trim() || !firstName || !lastName) { setError('All fields are required.'); return }
 
         if (!isValidEmail(email)) {
             setError('Please enter a valid Email Address')
@@ -53,14 +59,20 @@ function SignUp() {
 
         setLoading(true)
         try {
-            await apiPostCredentials(user.username, email, password)
-            onSetupComplete()
+            await apiPostSubscriber({"username": username, "email": email, "first_name": firstName, "last_name": lastName})
+            setSuccess("Thank you for subscribing!")
         } catch (err) {
             setError(err.message)
         } finally {
             setLoading(false)
         }
     }
+
+    if (valid === null) return (
+        <div style={{ minHeight: '100svh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--ink)' }}>
+            <span className="spinner" style={{ borderColor: 'rgba(232,160,48,0.2)', borderTopColor: 'var(--amber)', width: 28, height: 28, borderWidth: 3 }} />
+        </div>
+    )
 
     return (
         <div className="dash-root">
@@ -122,6 +134,7 @@ function SignUp() {
                     </div>
 
                     {error && <p className="auth-error">{error}</p>}
+                    {success && <p className="auth-success">{success}</p>}
 
                     <button
                         type="submit"
@@ -130,7 +143,7 @@ function SignUp() {
                     >
                         {loading
                             ? <span className="spinner" />
-                            : 'Submit'}
+                            : 'Subscribe'}
                     </button>
                 </form>
             </main>
