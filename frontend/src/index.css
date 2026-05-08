@@ -4,6 +4,7 @@
   --ink:       #0d0f1a;
   --ink-2:     #1a1d2e;
   --ink-3:     #252840;
+  --ink-4:     #545a89;
   --paper:     #f5f2ea;
   --paper-2:   #ece8de;
   --amber:     #e8a030;
@@ -71,12 +72,14 @@ body::before {
   cursor: pointer;
   transition: all 0.18s ease;
   text-decoration: none;
+  margin-right: 15px;
 }
 
 .btn-primary {
   background: var(--amber);
   color: var(--ink);
 }
+
 .btn-primary:hover { background: var(--amber-l); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(232,160,48,0.3); }
 
 .btn-ghost {

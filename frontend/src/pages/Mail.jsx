@@ -52,8 +52,10 @@ function Mail({ user, onLogout }) {
             </header>
 
             <main className="dash-main container fade-in">
-                <Link to="/" className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>Back</Link>
-
+                <div>
+                    <Link to="/" className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>Back</Link>
+                    <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>Send</button>
+                </div>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'start' }}>
 
                     <div
