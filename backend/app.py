@@ -208,12 +208,12 @@ def post_campaign_subscribers():
 @app.route("/api/subscriber", methods=["PUT"])
 def put_campaign_subscriber():
     data = request.get_json()
-    username: str = data.get('username')
+    id: str = data.get('id')
     email: str = data.get('email')
     first_name: str = data.get('first_name')
     last_name: str = data.get('last_name')
     try:
-        put_subscriber(username, email, first_name, last_name)
+        put_subscriber(id, email, first_name, last_name)
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"msg": f"Subscriber not updated: {e}"}), 404

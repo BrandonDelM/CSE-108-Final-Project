@@ -52,6 +52,17 @@ function Subscribers({ user, onLogout, onNavigate }) {
         }
     }
 
+    async function handleRowUpdate(newRow, oldRow) {
+        try {
+            await apiPutSubscriber(newRow)
+            await Set_Subscribers()
+            return newRow
+        } catch (err) {
+            setError(err.message)
+            return oldRow  // revert to old values on failure
+        }
+    }
+
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
         Papa.parse(file, {
@@ -127,7 +138,10 @@ function Subscribers({ user, onLogout, onNavigate }) {
                 <DataGrid rows={rows}
                     columns={columns}
                     getRowId={row => row.id}
-                    showToolbar />
+                    processRowUpdate={handleRowUpdate}
+                    onProcessRowUpdateError={err => setError(err.message)}
+                    showToolbar 
+                    />
 
                 <label className="btn btn-ghost btn-sm" title="Format: email,first_name,last_name" style={{ cursor: 'pointer'}}>Upload CSV File
                     <input id="file-upload" type="file" accept=".csv" style={{ display: 'none' }} onChange={handleFileUpload} />

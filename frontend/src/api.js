@@ -111,8 +111,7 @@ export async function apiPostSubscriber(data) {
   return res.json()
 }
 
-export async function apiPutSubscriber(username, email, first_name, last_name) {
-  let data = { "username": username, "email": email, "first_name": first_name, "last_name": last_name }
+export async function apiPutSubscriber(data) {
   const res = await fetch('/api/subscriber', {
     method: 'PUT',
     body: JSON.stringify(data),

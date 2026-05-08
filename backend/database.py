@@ -78,12 +78,12 @@ def post_subscriber(username: str, email: str, first_name: str, last_name: str):
         print(f"Error: {e}")
     conn.close()
 
-def put_subscriber(username: str, email: str, first_name: str, last_name: str):
+def put_subscriber(id: str, email: str, first_name: str, last_name: str):
     init_subscribers_db()
     conn = get_conn()
     c = conn.cursor()
     try:
-        c.execute("UPDATE subscribers SET email = ?, first_name = ?, last_name = ? WHERE username = ?", (email, first_name, last_name, username))
+        c.execute("UPDATE subscribers SET email = ?, first_name = ?, last_name = ? WHERE id = ?", (email, first_name, last_name, id))
         conn.commit()
     except Exception as e:
         print(f"Error: {e}")
