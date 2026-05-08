@@ -7,6 +7,21 @@ import SetUp from './pages/SetUp.jsx'
 import Subscribers from './pages/Subscribers.jsx'
 import SendMail from './pages/Mail.jsx'
 import Settings from './pages/Settings.jsx'
+import SignUp from './pages/SignUp.jsx'
+
+function AuthedRoutes({ user, onLogout }) {
+  const props = { user, onLogout }
+  return (
+    <Routes>
+      <Route path="/" element={<Dashboard {...props} />} />
+      <Route path="/subscribers" element={<Subscribers {...props} />} />
+      <Route path="/mail" element={<SendMail {...props} />} />
+      <Route path="/settings" element={<Settings {...props} />} />
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  )
+}
+
 
 export default function App() {
   const [user, setUser] = useState(null)
@@ -50,11 +65,17 @@ export default function App() {
   const props = { user, onLogout: handleLogout }
   return (
     <Routes>
-      <Route path="/" element={<Dashboard {...props} />} />
-      <Route path="/subscribers" element={<Subscribers {...props} />} />
-      <Route path="/mail" element={<SendMail {...props} />} />
-      <Route path="/settings" element={<Settings {...props} />} />
-      <Route path="*" element={<Navigate to="/" />} />
+      {/* Public — no auth required */}
+      <Route path="/signup/:campaignId" element={<SignUp />} />
+
+      {/* Auth gate */}
+      <Route path="*" element={
+        !user
+          ? <AuthPage onLogin={setUser} />
+          : !user.is_setup
+            ? <SetUp user={user} onLogout={handleLogout} onSetupComplete={() => setUser(u => ({ ...u, is_setup: true }))} />
+            : <AuthedRoutes user={user} onLogout={handleLogout} />
+      } />
     </Routes>
   )
 }

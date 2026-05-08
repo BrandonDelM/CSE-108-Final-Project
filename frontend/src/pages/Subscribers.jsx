@@ -5,7 +5,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { apiGetSubscribers, apiPostSubscriber, apiPutSubscriber, apiDeleteSubscriber } from '../api.js'
 import Papa from 'papaparse';
 
-function Subscribers({ user, onLogout, onNavigate }) {
+function Subscribers({ user, onLogout }) {
     const [rows, setRows] = useState([])
     const [mode, setMode] = useState('login')
     const [email, setEmail] = useState('')

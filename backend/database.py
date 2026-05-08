@@ -109,6 +109,19 @@ def delete_subscriber(username: str, email: str):
         print(f"Error: {e}")
     conn.close()
 
+def get_campaign_username(id: str):
+    init_subscribers_db()
+    conn = get_conn()
+    c = conn.cursor()
+    try:
+        c.execute("SELECT username FROM users WHERE id = ?", (id,))
+        row = c.fetchone()
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+    conn.close()
+    return row["username"] if row else None
+
 def init_subscribers_db():
     conn = get_conn()
     c = conn.cursor()

@@ -243,7 +243,7 @@ def api_get_users_emails():
     username: str = request.headers.get('X-Username')
     email = get_user_emails(username)
     if email is None:
-        return jsonify({"msg": "Email not found"}), 404
+        return jsonify({"msg": "Emails not found"}), 404
     return jsonify(email), 200
 
 @app.route("/api/users/sent", methods=["GET"])
@@ -251,8 +251,16 @@ def api_get_users_sent_emails():
     username: str = request.headers.get('X-Username')
     email = get_user_sent_emails(username)
     if email is None:
-        return jsonify({"msg": "Email not found"}), 404
+        return jsonify({"msg": "Sent not found"}), 404
     return jsonify(email), 200
+
+@app.route("/api/campaign/username", methods=["GET"])
+def api_get_campaign_username():
+    id: str = request.headers.get('X-Id')
+    username = get_campaign_username(id)
+    if username is None:
+        return jsonify({"msg": "Campaign username not found"}), 404
+    return jsonify(username), 200
 
 @app.route("/api/users/<int:uid>", methods=["PATCH"])
 def api_update_user(uid):

@@ -151,3 +151,13 @@ export async function apiGetSentEmails(username) {
   if (!res.ok) throw new Error('Failed to fetch emails')
   return res.json()
 }
+
+export async function apiGetCampaignUsername(id) {
+  const res = await fetch('/api/campaign/username', {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json', 'X-Id': id },
+    credentials: 'include'
+  })
+  if (!res.ok) throw new Error('Failed to fetch emails')
+  return res.json()
+}
