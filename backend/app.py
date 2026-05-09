@@ -64,7 +64,7 @@ class SecureAdminView(ModelView):
             model.password = bcrypt.generate_password_hash(raw.data).decode("utf-8")
 
 admin = Admin(app, name="Admin Panel")
-admin.add_view(SecureAdminView(User, db.session))
+admin.add_view(SecureAdminView(User, db))
 
 def current_user():
     username = get_jwt_identity()
