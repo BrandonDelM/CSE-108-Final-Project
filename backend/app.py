@@ -13,8 +13,6 @@ from datetime import timedelta
 from database import *
 import os
 
-# ── App setup ────────────────────────────────────────────────────────────────
-
 app = Flask(__name__)
 
 app.config["SECRET_KEY"]                 = "change-me-in-production"
@@ -36,18 +34,12 @@ db     = SQLAlchemy(app)
 CORS(app, origins=["http://127.0.0.1:5173", "http://localhost:5173"],
      supports_credentials=True)
 
-# ── SQLAlchemy models (for Flask-Admin only) ──────────────────────────────────
-
-
 class User(db.Model):
     __tablename__ = "users"
     id       = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     role     = db.Column(db.String, nullable=False, default="student")
-
-
-# ── Flask-Admin ──────────────────────────────────────────────────────────────
 
 class SecureAdminView(ModelView):
     column_exclude_list    = ["password"]
@@ -74,20 +66,13 @@ class SecureAdminView(ModelView):
 admin = Admin(app, name="Admin Panel")
 admin.add_view(SecureAdminView(User, db.session))
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
 def current_user():
     username = get_jwt_identity()
     return get_user_by_username(username)
 
-# ── Routes ────────────────────────────────────────────────────────────────────
-
 @app.route("/")
 def index():
     return "", 204
-
-
-# ---------- Auth --------------------------------------------------------------
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -176,7 +161,63 @@ def put_campaign_credentials():
         return jsonify({"msg": "User not updated"}), 404
     return jsonify({"msg": f"{username} updated successfully"}), 200
 
-# ---------- Admin API ---------------------------------------------------------
+@app.route("/api/subscriber", methods=["GET"])
+def get_campaign_subscribers():
+    username: str = request.headers.get('X-Username')
+    subscribers = get_subscribers(username)
+    return subscribers
+
+@app.route("/api/subscriber", methods=["POST"])
+def post_campaign_subscribers():
+    data = request.get_json()
+
+    subscribers = data if isinstance(data, list) else [data]
+    unsuccessfuls = []
+    successfuls = []
+
+    for subscriber in subscribers:
+        username = subscriber.get("username")
+        email = subscriber.get("email")
+        first_name = subscriber.get("first_name")
+        last_name = subscriber.get("last_name")
+        try:
+            post_subscriber(username, email, first_name, last_name)
+            successfuls.append(email)
+        except Exception as e:
+            print(f"Error: {e}")
+            unsuccessfuls.append({"email": email, "error": str(e)})
+    return jsonify({
+        "added": successfuls,
+        "errors": unsuccessfuls,
+        "msg": f"Successfully added {len(successfuls)} emails with {len(successfuls)} fails."
+    }), 200
+
+@app.route("/api/subscriber", methods=["PUT"])
+def put_campaign_subscriber():
+    data = request.get_json()
+    id: str = data.get('id')
+    email: str = data.get('email')
+    first_name: str = data.get('first_name')
+    last_name: str = data.get('last_name')
+    try:
+        put_subscriber(id, email, first_name, last_name)
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"msg": f"Subscriber not updated: {e}"}), 404
+    return jsonify({"msg": f"{email} added successfully"}), 200
+
+
+@app.route("/api/subscriber", methods=["DELETE"])
+def delete_campaign_subscriber():
+    data = request.get_json()
+    username: str = data.get('username')
+    email: str = data.get('email')
+    try:
+        delete_subscriber(username, email)
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"msg": f"Subscriber not deleted: {e}"}), 404
+    return jsonify({"msg": f"{email} added successfully"}), 200
 
 def require_admin():
     """Call inside a route; returns (user, None) or (None, error_response)."""
@@ -197,6 +238,29 @@ def api_users():
         return err
     return jsonify(get_all_users())
 
+@app.route("/api/users/emails", methods=["GET"])
+def api_get_users_emails():
+    username: str = request.headers.get('X-Username')
+    email = get_user_emails(username)
+    if email is None:
+        return jsonify({"msg": "Emails not found"}), 404
+    return jsonify(email), 200
+
+@app.route("/api/users/sent", methods=["GET"])
+def api_get_users_sent_emails():
+    username: str = request.headers.get('X-Username')
+    email = get_user_sent_emails(username)
+    if email is None:
+        return jsonify({"msg": "Sent not found"}), 404
+    return jsonify(email), 200
+
+@app.route("/api/campaign/username", methods=["GET"])
+def api_get_campaign_username():
+    id: str = request.headers.get('X-Id')
+    username = get_campaign_username(id)
+    if username is None:
+        return jsonify({"msg": "Campaign username not found"}), 404
+    return jsonify(username), 200
 
 @app.route("/api/users/<int:uid>", methods=["PATCH"])
 def api_update_user(uid):
@@ -210,7 +274,6 @@ def api_update_user(uid):
     update_user_role(uid, role)
     return jsonify({"msg": "Updated"})
 
-#blah blah blah blah
 
 @app.route("/api/users/<int:uid>", methods=["DELETE"])
 def api_delete_user(uid):
@@ -220,6 +283,49 @@ def api_delete_user(uid):
     delete_user(uid)
     return jsonify({"msg": "Deleted"})
 
+@app.route("/api/send", methods=["POST"])
+@jwt_required()
+def api_send():
+    from send_email import send_email
+
+    username = get_jwt_identity()
+    creds    = get_credentials_username(username)
+    if not creds:
+        return jsonify({"msg": "No sender credentials set up"}), 400
+
+    data    = request.get_json(force=True)
+    subject = data.get("subject", "")
+    fields  = data.get("fields", [])
+
+    text_parts = []
+    html_parts = ["<div style='font-family:sans-serif;max-width:600px;margin:auto;padding:20px'>"]
+
+    for f in fields:
+        ftype = f.get("type")
+        value = (f.get("value") or "").strip()
+        if not value:
+            continue
+        if ftype == "header":
+            text_parts.append(value.upper())
+            html_parts.append(f"<h1 style='font-size:24px;color:#111'>{value}</h1>")
+        elif ftype == "body":
+            text_parts.append(value)
+            html_parts.append(f"<p style='font-size:15px;color:#333;line-height:1.6'>{value}</p>")
+        elif ftype == "link":
+            text_parts.append(value)
+            html_parts.append(f"<p><a href='{value}' style='color:#e8a030'>{value}</a></p>")
+        elif ftype == "image":
+            text_parts.append("[Image]")
+            html_parts.append(f"<img src='{value}' style='max-width:100%;border-radius:6px;margin:12px 0' alt=''/>")
+
+    html_parts.append("</div>")
+    body_text = "\n\n".join(text_parts)
+    body_html = "".join(html_parts)
+
+    recipients = ["ciraulo.megan@gmail.com"] #must change for groups ofpeople
+
+    send_email(creds["email"], creds["password"], recipients, subject, body_text, body_html)
+    return jsonify({"msg": f"Sent to {len(recipients)} subscribers"}), 200
 # ── Startup ───────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
