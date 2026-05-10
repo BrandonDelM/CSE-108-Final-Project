@@ -1,21 +1,32 @@
 import './Dashboard.css'
 import { Link } from 'react-router-dom'
 import { useState, useRef } from 'react'
+import { apiSend } from '../api.js'
 
 const PALETTE = [
     { type: 'header', label: 'Header' },
     { type: 'body',   label: 'Body Text' },
-    { type: 'image',  label: 'Image' },
     { type: 'link',   label: 'Link' },
+    { type: 'image',  label: 'Image' },
 ]
 
-function ImageField() {
+function ImageField({ onChange }) {
     const fileRef = useRef()
     const [src, setSrc] = useState(null)
 
+    function handleFile(e) {
+        const file = e.target.files[0]
+        if (!file) return
+        const reader = new FileReader()
+        reader.onload = ev => {
+            setSrc(ev.target.result)
+            onChange(ev.target.result) 
+        }
+        reader.readAsDataURL(file)
+    }
+
     return <>
-        <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
-            onChange={e => setSrc(URL.createObjectURL(e.target.files[0]))} />
+        <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFile} />
         {src
             ? <img src={src} alt="" style={{ maxWidth: '100%', borderRadius: '6px' }} />
             : <button className="btn btn-ghost btn-sm" onClick={() => fileRef.current.click()}>Add Image</button>
@@ -25,6 +36,17 @@ function ImageField() {
 
 function Mail({ user, onLogout }) {
     const [fields, setFields] = useState([])
+    const [subject, setSubject] = useState('')
+
+    function updateValue(uid, value) {
+        setFields(prev => prev.map(f => f.uid === uid ? { ...f, value } : f))
+    }
+
+    async function handleSend() {
+        const payload = fields.map(f => ({ type: f.type, value: f.value || '' }))
+        const data = await apiSend(subject, payload)
+        alert(data.msg)
+    }
 
     function reorder(fromUid, toUid) {
         setFields(prev => {
@@ -54,47 +76,76 @@ function Mail({ user, onLogout }) {
             <main className="dash-main container fade-in">
                 <div>
                     <Link to="/" className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>Back</Link>
-                    <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>Send</button>
+                    <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} onClick={handleSend}>Send</button>
                 </div>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'start' }}>
 
                     <div
                         className="stat-card"
-                        onDragOver={e => e.preventDefault()}
-                        onDrop={e => {
-                            e.preventDefault()
-                            const item = PALETTE.find(p => p.type === e.dataTransfer.getData('text'))
-                            if (item) setFields(prev => [...prev, { ...item, uid: Date.now() }])
-                        }}
                         style={{ flex: 1, minHeight: '200px', display: 'flex', flexDirection: 'column', gap: '16px' }}
                     >
-                        {fields.length === 0 && <p className="dash-hint">Drop fields here</p>}
+                        <div className="field-group">
+                            <label className="field-label">Subject</label>
+                            <input
+                                className="field-input"
+                                type="text"
+                                placeholder="Email subject..."
+                                value={subject}
+                                onChange={e => setSubject(e.target.value)}
+                            />
+                        </div>
 
-                        {fields.map(field => (
-                            <div
-                                key={field.uid}
-                                className="field-group"
-                                draggable
-                                onDragStart={e => e.dataTransfer.setData('text', String(field.uid))}
-                                onDragOver={e => e.preventDefault()}
-                                onDragEnd={e => {
-                                    if (e.dataTransfer.dropEffect === 'none')
-                                        setFields(prev => prev.filter(f => f.uid !== field.uid))
-                                }}
-                                onDrop={e => {
-                                    e.preventDefault()
-                                    const fromUid = Number(e.dataTransfer.getData('text'))
-                                    if (fromUid) reorder(fromUid, field.uid)
-                                }}
-                                style={{ cursor: 'grab' }}
-                            >
-                                <label className="field-label">{field.label}</label>
-                                {field.type === 'image'  && <ImageField />}
-                                {field.type === 'header' && <input className="field-input" type="text" placeholder="Header" style={{ fontSize: '20px', fontWeight: 600 }} />}
-                                {field.type === 'body'   && <textarea className="field-input" placeholder="Body text" rows={4} style={{ resize: 'vertical' }} />}
-                                {field.type === 'link'   && <input className="field-input" type="url" placeholder="https://…" />}
-                            </div>
-                        ))}
+                        <hr style={{ borderColor: 'var(--border)', margin: '0' }} />
+
+                        <div
+                            onDragOver={e => e.preventDefault()}
+                            onDrop={e => {
+                                e.preventDefault()
+                                const item = PALETTE.find(p => p.type === e.dataTransfer.getData('text'))
+                                if (item) setFields(prev => [...prev, { ...item, uid: Date.now(), value: '' }])
+                            }}
+                            style={{ flex: 1, minHeight: '120px', display: 'flex', flexDirection: 'column', gap: '16px' }}
+                        >
+                            {fields.length === 0 && <p className="dash-hint">Drop fields here</p>}
+
+                            {fields.map(field => (
+                                <div
+                                    key={field.uid}
+                                    className="field-group"
+                                    draggable
+                                    onDragStart={e => e.dataTransfer.setData('text', String(field.uid))}
+                                    onDragOver={e => e.preventDefault()}
+                                    onDragEnd={e => {
+                                        if (e.dataTransfer.dropEffect === 'none')
+                                            setFields(prev => prev.filter(f => f.uid !== field.uid))
+                                    }}
+                                    onDrop={e => {
+                                        e.preventDefault()
+                                        const fromUid = Number(e.dataTransfer.getData('text'))
+                                        if (fromUid) reorder(fromUid, field.uid)
+                                    }}
+                                    style={{ cursor: 'grab' }}
+                                >
+                                    <label className="field-label">{field.label}</label>
+                                    {field.type === 'header' && <input className="field-input" type="text" placeholder="Header"
+                                        style={{ fontSize: '20px', fontWeight: 700 }}
+                                        onChange={e => updateValue(field.uid, e.target.value)} />}
+                                    {field.type === 'body' && <textarea className="field-input" placeholder="Body text" rows={4}
+                                        style={{ resize: 'vertical' }}
+                                        onChange={e => updateValue(field.uid, e.target.value)} />}
+                                    {field.type === 'link' && <input className="field-input" type="url" placeholder="https://…"
+                                        onChange={e => updateValue(field.uid, e.target.value)} />}
+                                    {field.type === 'image' && (
+                                        <input
+                                            className="field-input"
+                                            type="url"
+                                            placeholder="Paste an image URL"
+                                            onChange={e => updateValue(field.uid, e.target.value)}
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '160px', flexShrink: 0 }}>
