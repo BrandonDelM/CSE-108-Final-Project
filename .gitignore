@@ -3,3 +3,8 @@ backend/__pycache__
 .vscode
 .venv
 node_modules
+backend/database.db
+backend/*.db
+__pycache__/
+
+*.pyc
