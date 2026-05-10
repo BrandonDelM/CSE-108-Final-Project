@@ -232,3 +232,7 @@
     display: inline-block;
     animation: spin 0.7s linear infinite;
   }
+
+  .dash-brand-name {
+    text-decoration: None;
+  }

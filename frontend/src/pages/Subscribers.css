@@ -304,3 +304,7 @@
 .MuiTypography-root {
   color: var(--text-1) !important;
 }
+
+ .dash-brand-name {
+    text-decoration: None;
+  }

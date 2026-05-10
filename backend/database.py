@@ -11,10 +11,12 @@ def get_conn():
 # def temp():
 #     conn = get_conn()
 #     c = conn.cursor()
-#     c.execute("UPDATE users SET sent = 0")
-#     # c.execute("ALTER TABLE users ADD COLUMN sent INTEGER")
-#     conn.commit()
+#     # c.execute("UPDATE groups SET sent = 0")
+#     # c.execute("ALTER TABLE subscribers ADD COLUMN groups TEXT")
+#     # conn.commit()
 #     conn.close()
+
+# temp()
 
 def get_credentials_username(username: str):
     init_credentials_db()
@@ -64,7 +66,7 @@ def get_subscribers(username: str):
     conn = get_conn()
     c = conn.cursor()
     try:
-        c.execute('''SELECT id, email, first_name, last_name 
+        c.execute('''SELECT id, email, first_name, last_name, groups 
                    FROM subscribers
                    WHERE username = ?''', (username,))
         rows = c.fetchall()
@@ -75,23 +77,23 @@ def get_subscribers(username: str):
     return [dict(row) for row in rows]
     
 
-def post_subscriber(username: str, email: str, first_name: str, last_name: str):
+def post_subscriber(username: str, email: str, first_name: str, last_name: str, groups: str):
     init_subscribers_db()
     conn = get_conn()
     c = conn.cursor()
     try:
-        c.execute("INSERT INTO subscribers (username, email, first_name, last_name) VALUES (?, ?, ?, ?)", (username, email, first_name, last_name))
+        c.execute("INSERT INTO subscribers (username, email, first_name, last_name, groups) VALUES (?, ?, ?, ?, ?)", (username, email, first_name, last_name, groups))
         conn.commit()
     except Exception as e:
         print(f"Error: {e}")
     conn.close()
 
-def put_subscriber(id: str, email: str, first_name: str, last_name: str):
+def put_subscriber(id: str, email: str, first_name: str, last_name: str, groups: str = None):
     init_subscribers_db()
     conn = get_conn()
     c = conn.cursor()
     try:
-        c.execute("UPDATE subscribers SET email = ?, first_name = ?, last_name = ? WHERE id = ?", (email, first_name, last_name, id))
+        c.execute("UPDATE subscribers SET email = ?, first_name = ?, last_name = ?, groups = ? WHERE id = ?", (email, first_name, last_name, groups, id))
         conn.commit()
     except Exception as e:
         print(f"Error: {e}")

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { apiLogin, apiRegister } from '../api.js'
 import './AuthPage.css'
 
@@ -25,11 +26,6 @@ export default function AuthPage({ onLogin }) {
     e.preventDefault()
     setError(''); setSuccess('')
     if (!username.trim() || !password) { setError('All fields are required.'); return }
-
-    // if (!isValidEmail(email)) {
-    //   setError('Please enter a valid Email Address')
-    //   return
-    // }
 
     if (mode === 'register') {
       if (password !== confirm) { setError('Passwords do not match.'); return }
@@ -64,7 +60,7 @@ export default function AuthPage({ onLogin }) {
 
           <div className="auth-logo">
             <span className="auth-logo-mark">G</span>
-            <span className="auth-logo-text">GoMail</span>
+            <Link to="/" className="dash-brand-name" disabled={loading}>GoMail</Link>
           </div>
 
           <h1 className="auth-heading">

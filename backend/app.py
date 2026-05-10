@@ -180,8 +180,13 @@ def post_campaign_subscribers():
         email = subscriber.get("email")
         first_name = subscriber.get("first_name")
         last_name = subscriber.get("last_name")
+        groups = None
         try:
-            post_subscriber(username, email, first_name, last_name)
+            groups = subscriber.get("groups")
+        except Exception as e:
+            ...
+        try:
+            post_subscriber(username, email, first_name, last_name, groups)
             successfuls.append(email)
         except Exception as e:
             print(f"Error: {e}")
@@ -199,8 +204,13 @@ def put_campaign_subscriber():
     email: str = data.get('email')
     first_name: str = data.get('first_name')
     last_name: str = data.get('last_name')
+    groups = None
     try:
-        put_subscriber(id, email, first_name, last_name)
+        groups: str = data.get('groups')
+    except Exception as e:
+        ...
+    try:
+        put_subscriber(id, email, first_name, last_name, groups)
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"msg": f"Subscriber not updated: {e}"}), 404

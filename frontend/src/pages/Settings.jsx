@@ -58,7 +58,7 @@ function Settings({ user, onLogout, onNavigate }) {
                 <div className="container dash-header-inner">
                     <div className="dash-brand">
                         <span className="dash-brand-mark">G</span>
-                        <span className="dash-brand-name">GoMail</span>
+                        <Link to="/" className="dash-brand-name" disabled={loading}>GoMail</Link>
                     </div>
                     <div className="dash-header-right">
                         <span className="dash-username">{user.username}</span>

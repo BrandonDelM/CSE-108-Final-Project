@@ -16,11 +16,13 @@ function Subscribers({ user, onLogout }) {
     const [success, setSuccess] = useState('')
     const [loading, setLoading] = useState(false)
     const [campaignId, setCampaignId] = useState('')
+    const [groups, setGroups] = useState('')
 
     const columns = [
-        { field: 'email', headerName: 'Email', width: 500, editable: true },
+        { field: 'email', headerName: 'Email', width: 300, editable: true },
         { field: 'first_name', headerName: 'First Name', width: 300, editable: true },
         { field: 'last_name', headerName: 'Last Name', width: 300, editable: true },
+        { field: 'groups', headerName: 'Groups', width: 200, editable: true },
     ];
 
     function isValidEmail(email) {
@@ -111,7 +113,7 @@ function Subscribers({ user, onLogout }) {
     async function SetCampaignId() {
         try {
             const data = await apiGetCampaignId(user.username)
-            setCampaignId(data)
+            setCampaignId(data.id)
         } catch (err) { 
             setError('Failed to get campaign id')
         }
@@ -128,7 +130,7 @@ function Subscribers({ user, onLogout }) {
                 <div className="container dash-header-inner">
                     <div className="dash-brand">
                         <span className="dash-brand-mark">G</span>
-                        <span className="dash-brand-name">GoMail</span>
+                        <Link to="/" className="dash-brand-name" disabled={loading}>GoMail</Link>
                     </div>
                     <div className="dash-header-right">
                         <span className="dash-username">{user.username}</span>

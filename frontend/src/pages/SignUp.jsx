@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useState, React, useEffect } from 'react'
 import './DashBoard.css'
 import { apiGetCampaignUsername, apiPostSubscriber } from '../api'
@@ -80,7 +80,7 @@ function SignUp() {
                 <div className="container dash-header-inner">
                     <div className="dash-brand">
                         <span className="dash-brand-mark">G</span>
-                        <span className="dash-brand-name">GoMail</span>
+                        <Link to="/" className="dash-brand-name" disabled={loading}>GoMail</Link>
                     </div>
                 </div>
             </header>
