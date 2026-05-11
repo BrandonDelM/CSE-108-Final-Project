@@ -64,7 +64,7 @@ function Mail({ user, onLogout }) {
                 <div className="container dash-header-inner">
                     <div className="dash-brand">
                         <span className="dash-brand-mark">G</span>
-                        <Link to="/" className="dash-brand-name">GoMail</Link>
+                        <Link to="/mail" className="dash-brand-name">GoMail</Link>
                     </div>
                     <div className="dash-header-right">
                         <span className="dash-username">{user.username}</span>

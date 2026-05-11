@@ -165,7 +165,9 @@ def put_campaign_credentials():
 def get_campaign_subscribers():
     username: str = request.headers.get('X-Username')
     subscribers = get_subscribers(username)
-    return subscribers
+    if subscribers is None:
+        return jsonify([]), 200
+    return jsonify(subscribers), 200
 
 @app.route("/api/subscriber", methods=["POST"])
 def post_campaign_subscribers():
@@ -340,7 +342,7 @@ def api_send():
     body_text = "\n\n".join(text_parts)
     body_html = "".join(html_parts)
 
-    recipients = ["ciraulo.megan@gmail.com"] #must change for groups ofpeople
+    recipients = get_subscribers_email(username) #must change for groups ofpeople
 
     send_email(creds["email"], creds["password"], recipients, subject, body_text, body_html)
     return jsonify({"msg": f"Sent to {len(recipients)} subscribers"}), 200

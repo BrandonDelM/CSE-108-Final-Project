@@ -8,6 +8,8 @@ import Subscribers from './pages/Subscribers.jsx'
 import SendMail from './pages/Mail.jsx'
 import Settings from './pages/Settings.jsx'
 import SignUp from './pages/SignUp.jsx'
+import Mailing from './pages/Mailing.jsx'
+import Send from './pages/Send.jsx'
 
 function SignedInRoutes({ user, onLogout }) {
   const props = { user, onLogout }
@@ -17,6 +19,8 @@ function SignedInRoutes({ user, onLogout }) {
       <Route path="/subscribers" element={<Subscribers {...props} />} />
       <Route path="/mail" element={<SendMail {...props} />} />
       <Route path="/settings" element={<Settings {...props} />} />
+      <Route path="/mailing" element={<Mailing {...props} />} />
+      <Route path="/send" element={<Send {...props} />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   )

@@ -66,7 +66,7 @@ function Subscribers({ user, onLogout }) {
             return newRow
         } catch (err) {
             setError(err.message)
-            return oldRow  // revert to old values on failure
+            return oldRow
         }
     }
 
@@ -113,7 +113,7 @@ function Subscribers({ user, onLogout }) {
     async function SetCampaignId() {
         try {
             const data = await apiGetCampaignId(user.username)
-            setCampaignId(data.id)
+            setCampaignId(data)
         } catch (err) { 
             setError('Failed to get campaign id')
         }

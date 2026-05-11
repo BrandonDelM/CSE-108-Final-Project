@@ -13,7 +13,12 @@ def get_conn():
 #     c = conn.cursor()
 #     # c.execute("UPDATE groups SET sent = 0")
 #     # c.execute("ALTER TABLE subscribers ADD COLUMN groups TEXT")
-#     # conn.commit()
+#     c.execute("""CREATE TABLE IF NOT EXISTS emails (
+#               id                INTEGER PRIMARY KEY AUTOINCREMENT,
+#               username          TEXT NOT NULL,
+#               body              TEXT NOT NULL
+#               )""")
+#     conn.commit()
 #     conn.close()
 
 # temp()
@@ -75,7 +80,21 @@ def get_subscribers(username: str):
         return None
     conn.close()
     return [dict(row) for row in rows]
-    
+
+def get_subscribers_email(username: str):
+    init_subscribers_db()
+    conn = get_conn()
+    c = conn.cursor()
+    try:
+        c.execute('''SELECT email 
+                   FROM subscribers
+                   WHERE username = ?''', (username,))
+        rows = c.fetchall()
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+    conn.close()
+    return [row["email"] for row in rows]
 
 def post_subscriber(username: str, email: str, first_name: str, last_name: str, groups: str):
     init_subscribers_db()
