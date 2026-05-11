@@ -1,14 +1,77 @@
 import './Dashboard.css'
+import './Send.css'
 import { Link } from 'react-router-dom'
-import { useState, useRef } from 'react'
-import { apiSend } from '../api.js'
+import { useState, useRef, useEffect } from 'react'
+import { apiSend, getCreatedEmails, apiGetSubscribers } from '../api.js'
+import { DataGrid } from '@mui/x-data-grid';
+import DOMPurify from 'dompurify'
 
 
 function Send({ user, onLogout }) {
+    const [error, setError] = useState('')
+    const [emails, setEmails] = useState([])
+    const [selected, setSelected] = useState(null)
+    const [rows, setRows] = useState([])
+    const [selectedRows, setSelectedRows] = useState([])
+    const [previewEmail, setPreviewEmail] = useState(null)
+    const [loading, setLoading] = useState(false)
+
+    const columns = [
+        { field: 'email', headerName: 'Email', width: 300 },
+        { field: 'first_name', headerName: 'First Name', width: 300 },
+        { field: 'last_name', headerName: 'Last Name', width: 300 },
+        { field: 'groups', headerName: 'Groups', width: 200 },
+    ];
+
+    async function Set_Subscribers() {
+        setError('')
+        setLoading(true)
+        try {
+            const data = await apiGetSubscribers(user.username)
+            setRows(data)
+        } catch (err) {
+            setError('Failed to load subscribers')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        Set_Subscribers()
+    }, [])
 
     async function handleSend() {
-        return
+        setError(''); setSuccess('')
+        setLoading(true)
+        if (!selected) { setError('Please select an email to send'); return }
+        if (selectedSubscribers.length === 0) { setError('Please select a subscriber to recieve an email'); return }
+        const recipients = selectedSubscribers.map(row => row.email)
+        try {
+            const email = getEmailbyId(selected)
+        } catch (err) {
+            setError(err)
+        } finally {
+            setSuccess(`Email successfully sent to ${selectedRows.length} emails`)
+            setLoading(false)
+        }
     }
+
+    async function getEmails() {
+        try {
+            const data = await getCreatedEmails(user.username)
+            setEmails(data)
+        } catch (err) {
+            setError("Couldn't fetch user's emails")
+        }
+    }
+
+    function resetColor() {
+
+    }
+
+    useEffect(() => {
+        getEmails()
+    }, [])
 
     return (
         <div className="dash-root">
@@ -16,7 +79,7 @@ function Send({ user, onLogout }) {
                 <div className="container dash-header-inner">
                     <div className="dash-brand">
                         <span className="dash-brand-mark">G</span>
-                        <Link to="/mail" className="dash-brand-name">GoMail</Link>
+                        <Link to="/" className="dash-brand-name" disabled={loading}>GoMail</Link>
                     </div>
                     <div className="dash-header-right">
                         <span className="dash-username">{user.username}</span>
@@ -27,15 +90,82 @@ function Send({ user, onLogout }) {
 
             <main className="dash-main container fade-in">
                 <div>
-                    <Link to="/" className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>Back</Link>
-                    <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} onClick={handleSend}>Send</button>
+                    <Link to="/mailing" className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>Back</Link>
                 </div>
 
-                <div className="dash-section-label">
-                    Created Emails
+                <div className="dash-section">
+                    <div className="dash-section-head">
+                        <h2>Created Emails</h2>
+                    </div>
                 </div>
 
-                
+                {loading ? <span className="spinner" />
+                    : emails.length > 0 ?
+                        emails.map(email =>
+                            <div key={email.id} className="card card-hover-2" style={{
+                                cursor: 'pointer',
+                                border: selected === email.id
+                                    ? '1px solid var(--amber)'
+                                    : '1px solid var(--border)',
+                                background: selected === email.id
+                                    ? 'var(--ink-3)'
+                                    : 'var(--ink-2)',
+                                transition: 'all 0.15s ease',
+                                textAlign: 'center'
+                            }} onClick={() =>
+                                setSelected(email.id)
+                            }>
+                                <p className="stat-value">{email.header}</p>
+                                <div className="stat-label">
+                                    Creation Date: {email.date}<br />
+                                    Email Id: {email.id}<br />
+                                    <button
+                                        className="btn btn-ghost btn-sm"
+                                        type="button"
+                                        onClick={e => {
+                                            e.stopPropagation()
+                                            setPreviewEmail(previewEmail === email.id ? null : email.id)
+                                        }}
+                                    >
+                                        {previewEmail === email.id ? 'Hide Email' : 'Show Email'}
+                                    </button>
+                                    {previewEmail === email.id && (
+                                        <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(email.body) }} />
+                                    )}
+                                </div>
+                            </div>
+                        )
+                        : <div className="card" style={{ textAlign: 'center', fontSize: '20px' }}>
+                            <div>
+                                You don't have any emails to send! <Link className="no-email" to="/mail">Create a new email to begin sending</Link>..
+                            </div>
+                        </div>}
+
+                <div className="dash-section">
+                    <div className="dash-section-head">
+                        <h2>Email Recipients</h2>
+                    </div>
+                    <div className="dash-role-text">
+                        <p>Select recipients of the email</p>
+                    </div>
+                </div>
+
+                <DataGrid rows={rows}
+                    columns={columns}
+                    getRowId={row => row.id}
+                    checkboxSelection
+                    disableRowSelectionOnClick
+                    onRowSelectionModelChange={(ids) => setSelectedRows(ids)}
+                />
+
+                {error && <p className="auth-error">{error}</p>}
+
+                {loading
+                    ? <span className="spinner" />
+                    : <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} onClick={handleSend} disabled={loading}>
+                        Send
+                    </button>}
+
             </main>
         </div>
     )

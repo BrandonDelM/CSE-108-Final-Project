@@ -182,3 +182,23 @@ export async function apiSend(subject, fields) {
     if (!res.ok) throw new Error('Failed to send')
     return res.json()
 }
+
+export async function getCreatedEmails(username) {
+    const res = await fetch('/api/mail', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'X-Username': username },
+        credentials: 'include',
+    })
+    if (!res.ok) throw new Error('Failed to send')
+    return res.json()
+}
+
+export async function getEmailById(id) {
+    const res = await fetch('/api/mail/id', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'X-Id': id },
+        credentials: 'include',
+    })
+    if (!res.ok) throw new Error('Failed to send')
+    return res.json()
+}

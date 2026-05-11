@@ -64,7 +64,7 @@ function Mail({ user, onLogout }) {
                 <div className="container dash-header-inner">
                     <div className="dash-brand">
                         <span className="dash-brand-mark">G</span>
-                        <Link to="/mail" className="dash-brand-name">GoMail</Link>
+                        <Link to="/" className="dash-brand-name">GoMail</Link>
                     </div>
                     <div className="dash-header-right">
                         <span className="dash-username">{user.username}</span>
@@ -75,7 +75,7 @@ function Mail({ user, onLogout }) {
 
             <main className="dash-main container fade-in">
                 <div>
-                    <Link to="/" className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>Back</Link>
+                    <Link to="/mailing" className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>Back</Link>
                     <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} onClick={handleSend}>Send</button>
                 </div>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'start' }}>
@@ -152,7 +152,7 @@ function Mail({ user, onLogout }) {
                         {PALETTE.map(item => (
                             <div
                                 key={item.type}
-                                className="stat-card"
+                                className="stat-card card-hover"
                                 draggable
                                 onDragStart={e => e.dataTransfer.setData('text', item.type)}
                                 style={{ cursor: 'grab', padding: '12px 14px', '--accent-color': 'transparent' }}
