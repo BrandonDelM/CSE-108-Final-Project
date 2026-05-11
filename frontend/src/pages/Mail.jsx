@@ -38,6 +38,7 @@ function ImageField({ onChange }) {
 function Mail({ user, onLogout }) {
     const [fields, setFields] = useState([])
     const [subject, setSubject] = useState('')
+    const [bgColor, setBgColor] = useState('')
 
     function updateValue(uid, value) {
         setFields(prev => prev.map(f => f.uid === uid ? { ...f, value } : f))
@@ -45,7 +46,7 @@ function Mail({ user, onLogout }) {
 
     async function handleSend() {
         const payload = fields.map(f => ({ type: f.type, value: f.value || '' }))
-        const data = await apiSend(subject, payload)
+        const data = await apiSend(subject, payload, bgColor)
         alert(data.msg)
     }
 
@@ -85,6 +86,24 @@ function Mail({ user, onLogout }) {
                         className="stat-card"
                         style={{ flex: 1, minHeight: '200px', display: 'flex', flexDirection: 'column', gap: '16px' }}
                     >
+                        <div className="field-group">
+                            <label className="field-label">Background Color (Optional)</label>
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                <input
+                                    type="color"
+                                    value={bgColor || '#ffffff'}
+                                    onChange={e => setBgColor(e.target.value)}
+                                    style={{ width: 50, height: 40, padding: 2, borderRadius: 6, border: '1px solid var(--border)', cursor: 'pointer' }}
+                                />
+                                <button
+                                    className="btn btn-ghost btn-sm"
+                                    onClick={() => setBgColor('')}
+                                >
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+
                         <div className="field-group">
                             <label className="field-label">Subject</label>
                             <input

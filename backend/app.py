@@ -331,10 +331,18 @@ def api_send():
     data    = request.get_json(force=True)
     subject = data.get("subject", "")
     fields  = data.get("fields", [])
+    bg_color = data.get("bgColor", "")  # NEW: get background color
 
     text_parts = []
-    html_parts = ["<div style='font-family:sans-serif;max-width:600px;margin:auto;padding:20px'>"]
-
+    html_parts = []
+    
+    # NEW: Add background wrapper if color is selected
+    if bg_color:
+        html_parts.append(f"<div style='background:{bg_color};padding:20px'>")
+    else:
+        html_parts.append("<div style='padding:20px'>")
+    
+    html_parts.append("<div style='font-family:sans-serif;max-width:600px;margin:auto;padding:20px;background:white'>")
     for f in fields:
         ftype = f.get("type")
         value = (f.get("value") or "").strip()
@@ -353,11 +361,13 @@ def api_send():
             text_parts.append("[Image]")
             html_parts.append(f"<img src='{value}' style='max-width:100%;border-radius:6px;margin:12px 0' alt=''/>")
 
-    html_parts.append("</div>")
+    html_parts.append("</div>")  # Close inner white box
+    html_parts.append("</div>")  # Close outer background wrapper
+    
     body_text = "\n\n".join(text_parts)
     body_html = "".join(html_parts)
 
-    recipients = get_subscribers_email(username) #must change for groups ofpeople
+    recipients = get_subscribers_email(username)
 
     send_email(creds["email"], creds["password"], recipients, subject, body_text, body_html)
     return jsonify({"msg": f"Sent to {len(recipients)} subscribers"}), 200

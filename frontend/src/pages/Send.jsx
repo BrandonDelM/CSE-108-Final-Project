@@ -2,13 +2,14 @@ import './Dashboard.css'
 import './Send.css'
 import { Link } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
-import { apiSend, getCreatedEmails, apiGetSubscribers } from '../api.js'
+import { apiSend, getCreatedEmails, apiGetSubscribers, getEmailById } from '../api.js'
 import { DataGrid } from '@mui/x-data-grid';
 import DOMPurify from 'dompurify'
 
 
 function Send({ user, onLogout }) {
     const [error, setError] = useState('')
+    const [success, setSuccess] = useState('')
     const [emails, setEmails] = useState([])
     const [selected, setSelected] = useState(null)
     const [rows, setRows] = useState([])
@@ -44,14 +45,22 @@ function Send({ user, onLogout }) {
         setError(''); setSuccess('')
         setLoading(true)
         if (!selected) { setError('Please select an email to send'); return }
-        if (selectedSubscribers.length === 0) { setError('Please select a subscriber to recieve an email'); return }
-        const recipients = selectedSubscribers.map(row => row.email)
+        if (selectedRows.length === 0) { setError('Please select a subscriber to recieve an email'); return }
+        const recipients = selectedRows.map(rowId => {
+            const row = rows.find(r => r.id === rowId)
+            return row?.email
+        }).filter(Boolean)
         try {
-            const email = getEmailbyId(selected)
-        } catch (err) {
-            setError(err)
-        } finally {
+            const email = await getEmailById(selected)
+            await apiSend(email.header, {
+                recipients: recipients,
+                subject: email.header,
+                body: email.body
+            })
             setSuccess(`Email successfully sent to ${selectedRows.length} emails`)
+        } catch (err) {
+            setError(err.message || 'Failed to send email')
+        } finally {
             setLoading(false)
         }
     }
@@ -150,14 +159,21 @@ function Send({ user, onLogout }) {
                     </div>
                 </div>
 
-                <DataGrid rows={rows}
-                    columns={columns}
-                    getRowId={row => row.id}
-                    checkboxSelection
-                    disableRowSelectionOnClick
-                    onRowSelectionModelChange={(ids) => setSelectedRows(ids)}
-                />
+                {rows.length > 0 ? (
+                    <DataGrid rows={rows}
+                        columns={columns}
+                        getRowId={row => row.id}
+                        checkboxSelection
+                        disableRowSelectionOnClick
+                        onRowSelectionModelChange={(ids) => setSelectedRows(ids)}
+                    />
+                ) : (
+                    <div className="card" style={{ textAlign: 'center', fontSize: '16px', padding: '20px' }}>
+                        <p>No subscribers found. <Link className="no-email" to="/subscribers">Add subscribers first</Link></p>
+                    </div>
+                )}
 
+                {success && <p className="auth-success" style={{ color: 'var(--green)' }}>{success}</p>}
                 {error && <p className="auth-error">{error}</p>}
 
                 {loading

@@ -172,12 +172,12 @@ export async function apiGetCampaignId(username) {
   return res.json()
 }
 
-export async function apiSend(subject, fields) {
+export async function apiSend(subject, fields, bgColor = '') {
     const res = await fetch('/api/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ subject, fields }),
+        body: JSON.stringify({ subject, fields, bgColor }),
     })
     if (!res.ok) throw new Error('Failed to send')
     return res.json()
