@@ -2,6 +2,7 @@ import './Dashboard.css'
 import { Link } from 'react-router-dom'
 import { useState, useRef } from 'react'
 import { apiSend } from '../api.js'
+import TextEditor from '../TextEditor.jsx'
 
 const PALETTE = [
     { type: 'header', label: 'Header' },
@@ -130,9 +131,7 @@ function Mail({ user, onLogout }) {
                                     {field.type === 'header' && <input className="field-input" type="text" placeholder="Header"
                                         style={{ fontSize: '20px', fontWeight: 700 }}
                                         onChange={e => updateValue(field.uid, e.target.value)} />}
-                                    {field.type === 'body' && <textarea className="field-input" placeholder="Body text" rows={4}
-                                        style={{ resize: 'vertical' }}
-                                        onChange={e => updateValue(field.uid, e.target.value)} />}
+                                    {field.type === 'body' && <TextEditor onChange={v => updateValue(field.uid, v)} />}
                                     {field.type === 'link' && <input className="field-input" type="url" placeholder="https://…"
                                         onChange={e => updateValue(field.uid, e.target.value)} />}
                                     {field.type === 'image' && (
