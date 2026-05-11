@@ -10,10 +10,20 @@ import Settings from './pages/Settings.jsx'
 import SignUp from './pages/SignUp.jsx'
 import Mailing from './pages/Mailing.jsx'
 import Send from './pages/Send.jsx'
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 function SignedInRoutes({ user, onLogout }) {
   const props = { user, onLogout }
   return (
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
     <Routes>
       <Route path="/" element={<Dashboard {...props} />} />
       <Route path="/subscribers" element={<Subscribers {...props} />} />
@@ -23,6 +33,8 @@ function SignedInRoutes({ user, onLogout }) {
       <Route path="/send" element={<Send {...props} />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
+
+    </ThemeProvider>
   )
 }
 

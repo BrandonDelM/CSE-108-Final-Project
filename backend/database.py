@@ -11,8 +11,8 @@ def get_conn():
 # def temp():
 #     conn = get_conn()
 #     c = conn.cursor()
-#     # c.execute("UPDATE groups SET sent = 0")
-#     # c.execute("ALTER TABLE emails ADD COLUMN date TEXT NOT NULL")
+#     # c.execute("UPDATE emails SET sent = 0")
+#     # c.execute("ALTER TABLE emails ADD COLUMN sent INTEGER")
 #     # c.execute("INSERT INTO emails (username, body, header, date) VALUES (?,?,?,?)", ("test", "<p>HELLO</p>", "Funny", "2026-05-10"))
 #     # c.execute("""CREATE TABLE IF NOT EXISTS emails (
 #     #           id                INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -282,7 +282,8 @@ def get_username_emails(username: str):
     conn = get_conn()
     c = conn.cursor()
     c.execute("""SELECT * FROM emails
-              WHERE username = ?""", (username,))
+              WHERE username = ?
+              AND sent = 1""", (username,))
     rows = c.fetchall()
     conn.commit()
     conn.close()
