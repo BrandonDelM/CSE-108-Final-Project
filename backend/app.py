@@ -345,7 +345,7 @@ def api_send():
             html_parts.append(f"<h1 style='font-size:24px;color:#111'>{value}</h1>")
         elif ftype == "body":
             text_parts.append(value)
-            html_parts.append(f"<p style='font-size:15px;color:#333;line-height:1.6'>{value}</p>")
+            html_parts.append(f"<div style='font-size:15px;color:#333;line-height:1.6;margin:0 0 16px 0'>{value}</div>")
         elif ftype == "link":
             text_parts.append(value)
             html_parts.append(f"<p><a href='{value}' style='color:#e8a030'>{value}</a></p>")
