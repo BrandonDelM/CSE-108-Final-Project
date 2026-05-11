@@ -11,7 +11,6 @@ function Send({ user, onLogout }) {
     const [error, setError] = useState('')
     const [emails, setEmails] = useState([])
     const [selected, setSelected] = useState(null)
-    const [email, setEmail] = useState('')
     const [rows, setRows] = useState([])
     const [selectedRows, setSelectedRows] = useState([])
     const [previewEmail, setPreviewEmail] = useState(null)
@@ -47,7 +46,14 @@ function Send({ user, onLogout }) {
         if (!selected) { setError('Please select an email to send'); return }
         if (selectedSubscribers.length === 0) { setError('Please select a subscriber to recieve an email'); return }
         const recipients = selectedSubscribers.map(row => row.email)
-        setLoading(false)
+        try {
+            const email = getEmailbyId(selected)
+        } catch (err) {
+            setError(err)
+        } finally {
+            setSuccess(`Email successfully sent to ${selectedRows.length} emails`)
+            setLoading(false)
+        }
     }
 
     async function getEmails() {

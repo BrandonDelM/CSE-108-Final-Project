@@ -8,22 +8,6 @@ def get_conn():
     conn.row_factory = sqlite3.Row
     return conn
 
-# def temp():
-#     conn = get_conn()
-#     c = conn.cursor()
-#     # c.execute("UPDATE emails SET sent = 0")
-#     # c.execute("ALTER TABLE emails ADD COLUMN sent INTEGER")
-#     # c.execute("INSERT INTO emails (username, body, header, date) VALUES (?,?,?,?)", ("test", "<p>HELLO</p>", "Funny", "2026-05-10"))
-#     # c.execute("""CREATE TABLE IF NOT EXISTS emails (
-#     #           id                INTEGER PRIMARY KEY AUTOINCREMENT,
-#     #           username          TEXT NOT NULL,
-#     #           body              TEXT NOT NULL
-#     #           )""")
-#     conn.commit()
-#     conn.close()
-
-# temp()
-
 def get_credentials_username(username: str):
     init_credentials_db()
     conn = get_conn()
@@ -289,4 +273,12 @@ def get_username_emails(username: str):
     conn.close()
     return [dict(row) for row in rows]
 
-# temp()
+def get_email_by_id(id: str):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("""SELECT * FROM emails
+              WHERE id = ?""", (id,))
+    row = c.fetchone()
+    conn.commit()
+    conn.close()
+    return dict(row) if row else None
