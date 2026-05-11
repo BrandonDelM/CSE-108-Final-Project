@@ -88,9 +88,9 @@ export default function Dashboard({ user, onLogout, onNavigate }) {
             <div className="stat-value">Manage Subscriptions</div>
             <div className="stat-label">Add and manage subscribers for your campaign</div>
           </Link>
-          <Link to="/mail" className="stat-card card-hover" style={{ textDecoration: 'none' }}>
-            <div className="stat-value">Send mail</div>
-            <div className="stat-label">Send emails to the subscribers of your campaigns</div>
+          <Link to="/mailing" className="stat-card card-hover" style={{ textDecoration: 'none' }}>
+            <div className="stat-value">Mailing</div>
+            <div className="stat-label">Create and send emails to the subscribers of your campaigns</div>
           </Link>
           <Link to="/settings" className="stat-card card-hover" style={{ textDecoration: 'none' }}>
             <div className="stat-value">Campaign settings</div>

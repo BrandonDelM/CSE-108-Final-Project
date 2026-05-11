@@ -8,20 +8,20 @@ def get_conn():
     conn.row_factory = sqlite3.Row
     return conn
 
-def temp():
-    conn = get_conn()
-    c = conn.cursor()
-    # c.execute("UPDATE groups SET sent = 0")
-    # c.execute("ALTER TABLE subscribers ADD COLUMN groups TEXT")
-    c.execute("""CREATE TABLE IF NOT EXISTS emails (
-              id                INTEGER PRIMARY KEY AUTOINCREMENT,
-              username          TEXT NOT NULL,
-              body              TEXT NOT NULL
-              )""")
-    conn.commit()
-    conn.close()
+# def temp():
+#     conn = get_conn()
+#     c = conn.cursor()
+#     # c.execute("UPDATE groups SET sent = 0")
+#     # c.execute("ALTER TABLE subscribers ADD COLUMN groups TEXT")
+#     c.execute("""CREATE TABLE IF NOT EXISTS emails (
+#               id                INTEGER PRIMARY KEY AUTOINCREMENT,
+#               username          TEXT NOT NULL,
+#               body              TEXT NOT NULL
+#               )""")
+#     conn.commit()
+#     conn.close()
 
-temp()
+# temp()
 
 def get_credentials_username(username: str):
     init_credentials_db()
