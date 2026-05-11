@@ -282,6 +282,14 @@ def api_get_campaign_id():
         return jsonify({"msg": "Campaign username not found"}), 404
     return jsonify(id), 200
 
+@app.route("/api/mail", methods=["GET"])
+def api_get_username_mail():
+    username: str = request.headers.get('X-Username')
+    emails = get_username_emails(username)
+    if emails is None:
+        return jsonify({"msg": "Campaign username not found"}), 404
+    return jsonify(emails), 200
+
 @app.route("/api/users/<int:uid>", methods=["PATCH"])
 def api_update_user(uid):
     _, err = require_admin()

@@ -1,0 +1,6 @@
+.card-hover {
+  background: var(--ink-3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+}

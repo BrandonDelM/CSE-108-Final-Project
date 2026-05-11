@@ -12,12 +12,13 @@ def get_conn():
 #     conn = get_conn()
 #     c = conn.cursor()
 #     # c.execute("UPDATE groups SET sent = 0")
-#     # c.execute("ALTER TABLE subscribers ADD COLUMN groups TEXT")
-#     c.execute("""CREATE TABLE IF NOT EXISTS emails (
-#               id                INTEGER PRIMARY KEY AUTOINCREMENT,
-#               username          TEXT NOT NULL,
-#               body              TEXT NOT NULL
-#               )""")
+#     # c.execute("ALTER TABLE emails ADD COLUMN date TEXT NOT NULL")
+#     # c.execute("INSERT INTO emails (username, body, header, date) VALUES (?,?,?,?)", ("test", "<p>HELLO</p>", "Funny", "2026-05-10"))
+#     # c.execute("""CREATE TABLE IF NOT EXISTS emails (
+#     #           id                INTEGER PRIMARY KEY AUTOINCREMENT,
+#     #           username          TEXT NOT NULL,
+#     #           body              TEXT NOT NULL
+#     #           )""")
 #     conn.commit()
 #     conn.close()
 
@@ -276,5 +277,15 @@ def delete_user(user_id: int):
     c.execute("DELETE FROM users WHERE id = ?", (user_id,))
     conn.commit()
     conn.close()
+
+def get_username_emails(username: str):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("""SELECT * FROM emails
+              WHERE username = ?""", (username,))
+    rows = c.fetchall()
+    conn.commit()
+    conn.close()
+    return [dict(row) for row in rows]
 
 # temp()
