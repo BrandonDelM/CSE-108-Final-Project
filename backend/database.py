@@ -287,7 +287,9 @@ def put_sent_emails(username: str):
     conn = get_conn()
     c = conn.cursor()
     current_sent = get_user_sent_emails(username)
-    c.execute("""UPDATE users SET sent = sent + ? WHERE username = ?""", (current_sent, username))
+    c.execute("""UPDATE users 
+              SET sent = sent + ? 
+              WHERE username = ?""", (current_sent, username))
     conn.commit()
     conn.close()
 
@@ -295,13 +297,18 @@ def put_created_emails(username: str):
     conn = get_conn()
     c = conn.cursor()
     current_emails = get_user_emails(username)
-    c.execute("""UPDATE users SET emails = emails + ? WHERE username = ?""", (current_emails, username))
+    c.execute("""UPDATE users 
+              SET emails = emails + ? 
+              WHERE username = ?""", (current_emails, username))
     conn.commit()
     conn.close()
 
 def put_email_as_sent(username: str, id: int):
     conn = get_conn()
     c = conn.cursor()
-    c.execute("""UPDATE emails SET sent = 1 WHERE username = ? AND id = ?""", (username, username))
+    c.execute("""UPDATE emails 
+              SET sent = 1 
+              WHERE username = ? 
+              AND id = ?""", (username, username))
     conn.commit()
     conn.close()
