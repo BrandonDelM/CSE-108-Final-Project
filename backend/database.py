@@ -283,7 +283,7 @@ def get_username_emails(username: str):
     c = conn.cursor()
     c.execute("""SELECT * FROM emails
               WHERE username = ?
-              AND sent = 1""", (username,))
+              AND sent = 0""", (username,))
     rows = c.fetchall()
     conn.commit()
     conn.close()

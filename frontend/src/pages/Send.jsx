@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
 import { apiSend, getCreatedEmails, apiGetSubscribers } from '../api.js'
 import { DataGrid } from '@mui/x-data-grid';
+import DOMPurify from 'dompurify'
 
 
 function Send({ user, onLogout }) {
@@ -13,6 +14,8 @@ function Send({ user, onLogout }) {
     const [email, setEmail] = useState('')
     const [rows, setRows] = useState([])
     const [selectedRows, setSelectedRows] = useState([])
+    const [previewEmail, setPreviewEmail] = useState(null)
+    const [loading, setLoading] = useState(false)
 
     const columns = [
         { field: 'email', headerName: 'Email', width: 300 },
@@ -23,11 +26,14 @@ function Send({ user, onLogout }) {
 
     async function Set_Subscribers() {
         setError('')
+        setLoading(true)
         try {
             const data = await apiGetSubscribers(user.username)
             setRows(data)
         } catch (err) {
             setError('Failed to load subscribers')
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -37,9 +43,11 @@ function Send({ user, onLogout }) {
 
     async function handleSend() {
         setError(''); setSuccess('')
+        setLoading(true)
         if (!selected) { setError('Please select an email to send'); return }
         if (selectedSubscribers.length === 0) { setError('Please select a subscriber to recieve an email'); return }
         const recipients = selectedSubscribers.map(row => row.email)
+        setLoading(false)
     }
 
     async function getEmails() {
@@ -65,7 +73,7 @@ function Send({ user, onLogout }) {
                 <div className="container dash-header-inner">
                     <div className="dash-brand">
                         <span className="dash-brand-mark">G</span>
-                        <Link to="/" className="dash-brand-name">GoMail</Link>
+                        <Link to="/" className="dash-brand-name" disabled={loading}>GoMail</Link>
                     </div>
                     <div className="dash-header-right">
                         <span className="dash-username">{user.username}</span>
@@ -85,33 +93,47 @@ function Send({ user, onLogout }) {
                     </div>
                 </div>
 
-                {emails.length > 0 ?
-                    emails.map(email =>
-                        <div key={email.id} className="card card-hover-2" style={{
-                            cursor: 'pointer',
-                            border: selected === email.id
-                                ? '1px solid var(--amber)'
-                                : '1px solid var(--border)',
-                            background: selected === email.id
-                                ? 'var(--ink-3)'
-                                : 'var(--ink-2)',
-                            transition: 'all 0.15s ease',
-                            textAlign: 'center'
-                        }} onClick={() =>
-                            setSelected(email.id)
-                        }>
-                            <p className="stat-value">{email.header}</p>
-                            <div className="stat-label">
-                                Creation Date: {email.date}<br />
-                                Email Id: {email.id}
+                {loading ? <span className="spinner" />
+                    : emails.length > 0 ?
+                        emails.map(email =>
+                            <div key={email.id} className="card card-hover-2" style={{
+                                cursor: 'pointer',
+                                border: selected === email.id
+                                    ? '1px solid var(--amber)'
+                                    : '1px solid var(--border)',
+                                background: selected === email.id
+                                    ? 'var(--ink-3)'
+                                    : 'var(--ink-2)',
+                                transition: 'all 0.15s ease',
+                                textAlign: 'center'
+                            }} onClick={() =>
+                                setSelected(email.id)
+                            }>
+                                <p className="stat-value">{email.header}</p>
+                                <div className="stat-label">
+                                    Creation Date: {email.date}<br />
+                                    Email Id: {email.id}<br />
+                                    <button
+                                        className="btn btn-ghost btn-sm"
+                                        type="button"
+                                        onClick={e => {
+                                            e.stopPropagation()
+                                            setPreviewEmail(previewEmail === email.id ? null : email.id)
+                                        }}
+                                    >
+                                        {previewEmail === email.id ? 'Hide Email' : 'Show Email'}
+                                    </button>
+                                    {previewEmail === email.id && (
+                                        <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(email.body) }} />
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    )
-                    : <div className="card" style={{textAlign: 'center', fontSize: '20px'}}>
-                        <div>
-                            You don't have any emails to send! <Link className="no-email" to="/mail">Create a new email to begin sending</Link>..
-                        </div>
-                    </div>}
+                        )
+                        : <div className="card" style={{ textAlign: 'center', fontSize: '20px' }}>
+                            <div>
+                                You don't have any emails to send! <Link className="no-email" to="/mail">Create a new email to begin sending</Link>..
+                            </div>
+                        </div>}
 
                 <div className="dash-section">
                     <div className="dash-section-head">
@@ -132,7 +154,11 @@ function Send({ user, onLogout }) {
 
                 {error && <p className="auth-error">{error}</p>}
 
-                <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} onClick={handleSend}>Send</button>
+                {loading
+                    ? <span className="spinner" />
+                    : <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} onClick={handleSend} disabled={loading}>
+                        Send
+                    </button>}
 
             </main>
         </div>
