@@ -285,16 +285,16 @@ def api_get_campaign_id():
 
 @app.route("/api/mail", methods=["GET"])
 def api_get_username_mail():
-    id: str = request.headers.get('X-Username')
-    emails = get_username_emails(id)
+    username: str = request.headers.get('X-Username')
+    emails = get_username_emails(username)
     if emails is None:
         return jsonify({"msg": "Campaign username not found"}), 404
     return jsonify(emails), 200
 
 @app.route("/api/mail/id", methods=["GET"])
 def api_get_email_by_id():
-    username: str = request.headers.get('X-Id')
-    email = get_email_by_id(username)
+    id: int = request.headers.get('X-Id')
+    email = get_email_by_id(id)
     if email is None:
         return jsonify({"msg": "Email can't be found"}), 404
     return jsonify(email), 200
