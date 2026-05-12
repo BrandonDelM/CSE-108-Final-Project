@@ -121,6 +121,7 @@ def login():
 
 
 @app.route("/logout", methods=["POST"])
+@jwt_required()
 def logout():
     response = jsonify({"msg": "Logged out"})
     unset_jwt_cookies(response)
@@ -136,6 +137,7 @@ def session():
     return jsonify({"id": user["id"], "username": user["username"], "role": user["role"], "is_setup": user["email"] is not None})
 
 @app.route("/api/credentials", methods=["GET"])
+@jwt_required()
 def get_campaign_credentials():
     username: str = request.headers.get('X-Username')
     user = get_credentials_username(username)
@@ -144,6 +146,7 @@ def get_campaign_credentials():
     return jsonify({"username": user["username"], "email": user["email"], "password": user["password"]}), 200
 
 @app.route("/api/credentials", methods=["POST"])
+@jwt_required()
 def post_campaign_credentials():
     data = request.get_json()
     username: str = data.get('username')
@@ -158,6 +161,7 @@ def post_campaign_credentials():
     return jsonify({"msg": f"{username} added successfully"}), 200
 
 @app.route("/api/credentials", methods=["PUT"])
+@jwt_required()
 def put_campaign_credentials():
     data = request.get_json()
     username: str = data.get('username')
@@ -171,6 +175,7 @@ def put_campaign_credentials():
     return jsonify({"msg": f"{username} updated successfully"}), 200
 
 @app.route("/api/subscriber", methods=["GET"])
+@jwt_required()
 def get_campaign_subscribers():
     username: str = request.headers.get('X-Username')
     subscribers = get_subscribers(username)
@@ -179,6 +184,7 @@ def get_campaign_subscribers():
     return jsonify(subscribers), 200
 
 @app.route("/api/subscriber", methods=["POST"])
+@jwt_required()
 def post_campaign_subscribers():
     data = request.get_json()
 
@@ -209,6 +215,7 @@ def post_campaign_subscribers():
     }), 200
 
 @app.route("/api/subscriber", methods=["PUT"])
+@jwt_required()
 def put_campaign_subscriber():
     data = request.get_json()
     id: str = data.get('id')
@@ -253,6 +260,7 @@ def require_admin():
 
 
 @app.route("/api/users", methods=["GET"])
+@jwt_required()
 def api_users():
     _, err = require_admin()
     if err:
@@ -260,6 +268,7 @@ def api_users():
     return jsonify(get_all_users())
 
 @app.route("/api/users/emails", methods=["GET"])
+@jwt_required()
 def api_get_users_emails():
     username: str = request.headers.get('X-Username')
     email = get_user_emails(username)
@@ -268,6 +277,7 @@ def api_get_users_emails():
     return jsonify(email), 200
 
 @app.route("/api/users/sent", methods=["GET"])
+@jwt_required()
 def api_get_users_sent_emails():
     username: str = request.headers.get('X-Username')
     email = get_user_sent_emails(username)
@@ -276,6 +286,7 @@ def api_get_users_sent_emails():
     return jsonify(email), 200
 
 @app.route("/api/campaign/username", methods=["GET"])
+@jwt_required()
 def api_get_campaign_username():
     id: str = request.headers.get('X-Id')
     username = get_campaign_username(id)
@@ -284,6 +295,7 @@ def api_get_campaign_username():
     return jsonify(username), 200
 
 @app.route("/api/campaign/id", methods=["GET"])
+@jwt_required()
 def api_get_campaign_id():
     username: str = request.headers.get('X-Username')
     id = get_campaign_id(username)
@@ -292,6 +304,7 @@ def api_get_campaign_id():
     return jsonify(id), 200
 
 @app.route("/api/mail", methods=["GET"])
+@jwt_required()
 def api_get_username_mail():
     username: str = request.headers.get('X-Username')
     emails = get_username_emails(username)
@@ -300,6 +313,7 @@ def api_get_username_mail():
     return jsonify(emails), 200
 
 @app.route("/api/mail/id", methods=["GET"])
+@jwt_required()
 def api_get_email_by_id():
     id: int = request.headers.get('X-Id')
     email = get_email_by_id(id)
@@ -434,6 +448,7 @@ def api_delete_email():
     return jsonify({"msg": f"Deleted email successfully"}), 200
 
 @app.route("/api/mail/html", methods=["GET"])
+@jwt_required()
 def api_get_mail_html():
     id = request.headers.get('X-Id')
     body = get_email_body(id)
@@ -521,6 +536,7 @@ def api_send():
     put_created_emails(username)
     put_sent_emails(username, len(recipients))
     return jsonify({"msg": f"Sent to {len(recipients)} subscribers"}), 200
+
 # ── Startup ───────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
