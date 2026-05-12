@@ -47,13 +47,13 @@ def send_email(sender, password, recipients, subject, body_text, body_html):
     msg.attach(MIMEText(body_html, 'html'))
     if 'gmail' in sender:
         smtp_server = 'smtp.gmail.com'
-        port = 587
+        port = 465
     elif 'outlook' in sender or 'hotmail' in sender or 'live' in sender:
         smtp_server = 'smtp.office365.com'
         port = 587
     else:
         smtp_server = 'smtp.gmail.com'  # default fallback
-        port = 587
+        port = 465
 
     with smtplib.SMTP(smtp_server, port) as server:
         server.starttls()
