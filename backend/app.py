@@ -5,6 +5,8 @@ from flask_jwt_extended import (
     unset_jwt_cookies, jwt_required, get_jwt_identity,
     verify_jwt_in_request,
 )
+from encrypt import encrypt_password, decrypt_password
+
 from flask_cors import CORS
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
@@ -13,6 +15,7 @@ from datetime import timedelta
 from database import *
 import os
 from send_email import *
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -146,8 +149,9 @@ def post_campaign_credentials():
     username: str = data.get('username')
     email: str = data.get('email')
     password: str = data.get('password')
+    encrypted = encrypt_password(password)
     try:
-        post_credentials(username, email, password)
+        post_credentials(username, email, encrypted)
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"msg": "User not added"}), 404
@@ -412,7 +416,9 @@ def api_send_save_email():
     body_text = email_data["plain"]
     body_html = email_data["body"]
 
-    send_email(creds["email"], creds["password"], recipients, subject, body_text, body_html)
+    decrypted_password = decrypt_password(creds["password"])  
+
+    send_email(creds["email"], decrypted_password, recipients, subject, body_text, body_html)
     put_email_as_sent(id)
     put_sent_emails(username, len(recipients))
     return jsonify({"msg": f"Sent to {len(recipients)} subscribers"}), 200
@@ -508,8 +514,10 @@ def api_send():
     recipients = get_subscribers_email(username)
     if not recipients:
         return jsonify({"msg": "No subscribers to send to"}), 400
+    
+    decrypted_password = decrypt_password(creds["password"])
 
-    send_email(creds["email"], creds["password"], recipients, subject, body_text, body_html)
+    send_email(creds["email"], decrypted_password, recipients, subject, body_text, body_html)
     put_created_emails(username)
     put_sent_emails(username, len(recipients))
     return jsonify({"msg": f"Sent to {len(recipients)} subscribers"}), 200
