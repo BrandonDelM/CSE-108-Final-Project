@@ -49,7 +49,7 @@ function Mail({ user, onLogout }) {
     async function handleSend() {
         const payload = fields.map(f => ({ type: f.type, value: f.value || '' }))
         const data = await apiSend(subject, payload, bgColor)
-        alert(data.msg)
+        setSuccess(data.msg)
     }
 
     async function handleSave() {

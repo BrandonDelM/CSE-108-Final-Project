@@ -10,6 +10,7 @@ import Settings from './pages/Settings.jsx'
 import SignUp from './pages/SignUp.jsx'
 import Mailing from './pages/Mailing.jsx'
 import Send from './pages/Send.jsx'
+import Email from './pages/Email.jsx'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
@@ -84,6 +85,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/signup/:campaignId" element={<SignUp />} />
+      <Route path="/email/:emailId" element={<Email />} />
       <Route path="*" element={
         !user ? <AuthPage onLogin={setUser} /> : 
             !user.is_setup ? <SetUp user={user} onLogout={handleLogout} onSetupComplete={() => setUser(u => ({ ...u, is_setup: true }))} />
