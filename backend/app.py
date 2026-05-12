@@ -39,18 +39,11 @@ app.config["SQLALCHEMY_DATABASE_URI"]    = (
 jwt    = JWTManager(app)
 bcrypt = Bcrypt(app)
 db     = SQLAlchemy(app)
-origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
-CORS(app, origins=origins, supports_credentials=True)
-
-@app.after_request
-def after_request(response):
-    origin = request.headers.get('Origin')
-    if origin:
-        response.headers['Access-Control-Allow-Origin'] = origin
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-Username, X-Id'
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, PATCH, OPTIONS'
-    return response
+CORS(app, 
+     origins=["https://cse108finalproject-delta.vercel.app", "http://localhost:5173", "http://127.0.0.1:5173"],
+     supports_credentials=True,
+     allow_headers=["Content-Type", "X-Username", "X-Id", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
 
 class User(db.Model):
     __tablename__ = "users"
@@ -92,7 +85,7 @@ def current_user():
 def index():
     return "", 204
 
-@app.route("/register", methods=["POST"])
+@app.route("/register", methods=["POST", "OPTIONS"])
 def register():
     data     = request.get_json(force=True)
     username = (data.get("username") or "").strip()
