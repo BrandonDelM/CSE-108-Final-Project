@@ -148,9 +148,10 @@ def session():
 def get_campaign_credentials():
     username: str = request.headers.get('X-Username')
     user = get_credentials_username(username)
+    decrypted_password = decrypt_password(user["password"])  
     if not user:
         return jsonify({"msg": "User not found"}), 404
-    return jsonify({"username": user["username"], "email": user["email"], "password": user["password"]}), 200
+    return jsonify({"username": user["username"], "email": user["email"], "password": decrypted_password}), 200
 
 @app.route("/api/credentials", methods=["POST"])
 @jwt_required()
@@ -174,8 +175,9 @@ def put_campaign_credentials():
     username: str = data.get('username')
     email: str = data.get('email')
     password: str = data.get('password')
+    encrypted = encrypt_password(password)
     try:
-        put_credentials(username, email, password)
+        put_credentials(username, email, encrypted)
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({"msg": "User not updated"}), 404
