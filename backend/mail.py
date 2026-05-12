@@ -11,7 +11,7 @@ def get_conn():
 def temp():
     conn = get_conn()
     c = conn.cursor()
-    # c.execute("DELETE FROM credentials where id = 2")
+    # c.execute("DELETE FROM credentials where id = 1")
     # c.execute("UPDATE emails SET sent = 0")
     # c.execute("ALTER TABLE emails ADD COLUMN plain TEXT")
     # c.execute("INSERT INTO groups (username, body, header, date) VALUES (?,?,?,?)", ("test", "<p>HELLO</p>", "Funny", "2026-05-10"))
