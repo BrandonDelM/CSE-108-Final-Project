@@ -392,7 +392,7 @@ def api_save_email():
 
     email_id = post_save_email(username, body_html, body_text, subject, 0)
 
-    web_link = f"https://cse108finalproject-delta.vercel.app//email/{email_id}"
+    web_link = f"https://cse108finalproject-delta.vercel.app/email/{email_id}"
     view_in_browser = f"""
     <table width="100%" cellpadding="8" cellspacing="0" border="0">
       <tr>
@@ -532,7 +532,7 @@ def api_send():
 
     email_id = post_save_email(username, body_html, body_text, subject, 1)
 
-    web_link = f"https://cse108finalproject-delta.vercel.app//email/{email_id}"
+    web_link = f"https://cse108finalproject-delta.vercel.app/email/{email_id}"
     view_in_browser = f"""
     <table width="100%" cellpadding="8" cellspacing="0" border="0">
       <tr>

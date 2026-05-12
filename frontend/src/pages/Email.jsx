@@ -14,10 +14,11 @@ function Email() {
     useEffect(() => {
         async function checkCampaign() {
             try {
-                const email = await getEmailHTMLById(emailId)
-                setBody(email)
+                const response = await getEmailHTMLById(emailId)
+                setBody(response.html || response)
                 setValid(true)
             } catch (err) {
+                console.error("Failed to load email:", err)
                 navigate('/')
             }
         }
