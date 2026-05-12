@@ -13,12 +13,15 @@ from datetime import timedelta
 from database import *
 import os
 from send_email import *
-from models import User
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
-app.config["SECRET_KEY"]                 = "secret main key"
-app.config["JWT_SECRET_KEY"]             = "jwt production key"
+secret_key = os.getenv("SECRET_KEY")
+jwt_secret = os.getenv("JWT_SECRET")
+app.config["SECRET_KEY"]                 = secret_key
+app.config["JWT_SECRET_KEY"]             = jwt_secret
 app.config["JWT_TOKEN_LOCATION"]         = ["cookies"]
 app.config["JWT_COOKIE_SECURE"]          = False
 app.config["JWT_COOKIE_CSRF_PROTECT"]    = False

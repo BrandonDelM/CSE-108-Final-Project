@@ -297,7 +297,10 @@ def put_sent_emails(username: str, recipients: int):
 def put_created_emails(username: str):
     conn = get_conn()
     c = conn.cursor()
-    current_emails = get_user_emails(username) + 1
+    try:
+        current_emails = get_user_emails(username) + 1
+    except Exception as e:
+        current_emails = 1
     c.execute("""UPDATE users 
               SET emails = ? 
               WHERE username = ?""", (current_emails,username))

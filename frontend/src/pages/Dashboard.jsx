@@ -14,7 +14,7 @@ export default function Dashboard({ user, onLogout, onNavigate }) {
       const subs = await apiGetSubscribers(user.username)
       setSubscribers(subs.length)
     } catch (err) {
-      setError("Couldn't fetch total subscribers")
+      setSubscribers(0)
     }
   }
 
@@ -23,7 +23,7 @@ export default function Dashboard({ user, onLogout, onNavigate }) {
       const emails = await apiGetEmails(user.username)
       setEmails(emails)
     } catch (err) {
-      setError("Couldn't fetch total subscribers")
+      setEmails(0)
     }
   }
 
@@ -32,7 +32,7 @@ export default function Dashboard({ user, onLogout, onNavigate }) {
       const sent = await apiGetSentEmails(user.username)
       setSent(sent)
     } catch (err) {
-      setError("Couldn't fetch total subscribers")
+      setSent(0)
     }
   }
 
