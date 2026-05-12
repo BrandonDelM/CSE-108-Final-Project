@@ -1,14 +1,14 @@
 import './Dashboard.css'
 import { Link } from 'react-router-dom'
 import { useState, useRef } from 'react'
-import { apiSend } from '../api.js'
+import { apiSend, apiSave } from '../api.js'
 import TextEditor from '../TextEditor.jsx'
 
 const PALETTE = [
     { type: 'header', label: 'Header' },
-    { type: 'body',   label: 'Body Text' },
-    { type: 'link',   label: 'Link' },
-    { type: 'image',  label: 'Image' },
+    { type: 'body', label: 'Body Text' },
+    { type: 'link', label: 'Link' },
+    { type: 'image', label: 'Image' },
 ]
 
 function ImageField({ onChange }) {
@@ -21,7 +21,7 @@ function ImageField({ onChange }) {
         const reader = new FileReader()
         reader.onload = ev => {
             setSrc(ev.target.result)
-            onChange(ev.target.result) 
+            onChange(ev.target.result)
         }
         reader.readAsDataURL(file)
     }
@@ -37,6 +37,8 @@ function ImageField({ onChange }) {
 
 function Mail({ user, onLogout }) {
     const [fields, setFields] = useState([])
+    const [success, setSuccess] = useState('')
+    const [error, setError] = useState('')
     const [subject, setSubject] = useState('')
 
     function updateValue(uid, value) {
@@ -49,10 +51,22 @@ function Mail({ user, onLogout }) {
         alert(data.msg)
     }
 
+    async function handleSave() {
+        setError('')
+        setSuccess('')
+        try {
+            const payload = fields.map(f => ({ type: f.type, value: f.value || '' }))
+            const data = await apiSave(subject, payload)
+            setSuccess(data.msg)
+        } catch (err) {
+            setError("Couldn't save email to the server")
+        }
+    }
+
     function reorder(fromUid, toUid) {
         setFields(prev => {
             const from = prev.findIndex(f => f.uid === fromUid)
-            const to   = prev.findIndex(f => f.uid === toUid)
+            const to = prev.findIndex(f => f.uid === toUid)
             const next = [...prev]
             next.splice(to, 0, next.splice(from, 1)[0])
             return next
@@ -77,8 +91,13 @@ function Mail({ user, onLogout }) {
             <main className="dash-main container fade-in">
                 <div>
                     <Link to="/mailing" className="btn btn-primary" style={{ alignSelf: 'flex-start' }}>Back</Link>
-                    <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} onClick={handleSend}>Send</button>
+                    <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} onClick={handleSave}>Save</button>
+                    <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} onClick={handleSend}>Send To All Immediately</button>
                 </div>
+
+                {error && <p className="auth-error">{error}</p>}
+                {success && <p className="auth-success">{success}</p>}
+
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'start' }}>
 
                     <div

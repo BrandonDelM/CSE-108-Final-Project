@@ -285,33 +285,38 @@ def get_email_by_id(id: int):
     conn.close()
     return dict(row) if row else None
 
-def put_sent_emails(username: str):
+def put_sent_emails(username: str, recipients: int):
     conn = get_conn()
     c = conn.cursor()
-    current_sent = get_user_sent_emails(username)
-    c.execute("""UPDATE users 
-              SET sent = sent + ? 
-              WHERE username = ?""", (current_sent, username))
+    c.execute("""UPDATE users
+              SET sent = sent + ?
+              WHERE username = ?""", (recipients, username))
     conn.commit()
     conn.close()
 
 def put_created_emails(username: str):
     conn = get_conn()
     c = conn.cursor()
-    current_emails = get_user_emails(username)
+    current_emails = get_user_emails(username) + 1
     c.execute("""UPDATE users 
-              SET emails = emails + ? 
-              WHERE username = ?""", (current_emails, username))
+              SET emails = ? 
+              WHERE username = ?""", (current_emails,username))
     conn.commit()
     conn.close()
 
-def put_email_as_sent(username: str, id: int):
+def delete_email_by_id(id: int):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("UPDATE emails SET sent = 1 WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
+
+def put_email_as_sent(id: int):
     conn = get_conn()
     c = conn.cursor()
     c.execute("""UPDATE emails 
               SET sent = 1 
-              WHERE username = ? 
-              AND id = ?""", (username, username))
+              WHERE id = ?""", (id,))
     conn.commit()
     conn.close()
 

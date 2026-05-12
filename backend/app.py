@@ -357,6 +357,7 @@ def api_save_email():
     body_text = "\n\n".join(text_parts)
     body_html = "".join(html_parts)
     post_save_email(username, body_html, body_text, subject)
+    put_created_emails(username)
     return jsonify({"msg": f"Successfully saved email"}), 200
 
 @app.route("/api/mail/send", methods=["POST"])
@@ -374,7 +375,19 @@ def api_send_save_email():
     body_text = data["plain"]
     body_html = data["body"]
     send_email(creds["email"], creds["password"], recipients, subject, body_text, body_html)
+    put_email_as_sent(id)
+    put_sent_emails(username, len(recipients))
     return jsonify({"msg": f"Sent to {len(recipients)} subscribers"}), 200
+
+@app.route("/api/mail/delete", methods=["DELETE"])
+@jwt_required()
+def api_delete_email():
+    data = request.get_json(force=True)
+    id = data.get("id")
+    recipients = data.get("recipients")
+    data = get_email_by_id(id)
+    delete_email_by_id(id)
+    return jsonify({"msg": f"Deleted email successfully"}), 200
 
 @app.route("/api/send", methods=["POST"])
 @jwt_required()
@@ -416,6 +429,8 @@ def api_send():
     recipients = get_subscribers_email(username) #must change for groups ofpeople
 
     send_email(creds["email"], creds["password"], recipients, subject, body_text, body_html)
+    put_created_emails(username)
+    put_sent_emails(username, len(recipients))
     return jsonify({"msg": f"Sent to {len(recipients)} subscribers"}), 200
 # ── Startup ───────────────────────────────────────────────────────────────────
 
