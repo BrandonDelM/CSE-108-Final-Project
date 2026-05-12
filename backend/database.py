@@ -1,5 +1,7 @@
 import sqlite3
 import os
+from datetime import datetime
+
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "database.db")
 
@@ -310,5 +312,12 @@ def put_email_as_sent(username: str, id: int):
               SET sent = 1 
               WHERE username = ? 
               AND id = ?""", (username, username))
+    conn.commit()
+    conn.close()
+
+def post_save_email(username: str, body: str, plain: str, header: str):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("""INSERT INTO emails (username, body, plain, header, date, sent) VALUES (?,?,?,?,?,?)""", (username, body, plain, header, datetime.now(), 0))
     conn.commit()
     conn.close()
