@@ -1,66 +1,62 @@
-import sqlite3
+import psycopg2
+import psycopg2.extras
 import os
 from datetime import datetime
+from dotenv import load_dotenv
+load_dotenv()
 
-
-DB_PATH = os.path.join(os.path.dirname(__file__), "database.db")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_conn():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     return conn
 
-def get_credentials_username(username: str):
-    init_credentials_db()
-    conn = get_conn()
-    c = conn.cursor()
-    try:
-        c.execute(
-            "SELECT * FROM credentials where username = ?", (username,)
-        )
-        credentials = c.fetchone()
-    except sqlite3.IntegrityError as e:
-        print(f'Error: {e}')
-        credentials = None
-    conn.close()
-    return credentials
+def dict_cursor(conn):
+    return conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
+
+def get_credentials_username(username: str):
+    conn = get_conn()
+    c = dict_cursor(conn)
+    try:
+        c.execute("SELECT * FROM credentials WHERE username = %s", (username,))
+        row = c.fetchone()
+    except Exception as e:
+        print(f"Error: {e}")
+        row = None
+    conn.close()
+    return dict(row) if row else None
 
 def post_credentials(username: str, email: str, password: str):
-    init_credentials_db()
     conn = get_conn()
-    c = conn.cursor()
+    c = dict_cursor(conn)
     try:
-        c.execute(
-            "INSERT INTO credentials (username, email, password) VALUES (?, ?, ?)",
-            (username, email, password),
-        )
+        c.execute("INSERT INTO credentials (username, email, password) VALUES (%s, %s, %s)",
+                  (username, email, password))
         conn.commit()
-    except sqlite3.IntegrityError as e:
-        print(f'Error: {e}')
+    except Exception as e:
+        print(f"Error: {e}")
+        conn.rollback()
     conn.close()
 
-def put_credentials(username: str, email: str, password: str): 
-    init_credentials_db()
+def put_credentials(username: str, email: str, password: str):
     conn = get_conn()
-    c = conn.cursor()
+    c = dict_cursor(conn)
     try:
-        c.execute(
-            "UPDATE credentials SET email = ?, password = ? WHERE username = ?", (email, password, username)
-        )
+        c.execute("UPDATE credentials SET email = %s, password = %s WHERE username = %s",
+                  (email, password, username))
         conn.commit()
-    except sqlite3.IntegrityError as e:
-        print(f'Error: {e}')
+    except Exception as e:
+        print(f"Error: {e}")
+        conn.rollback()
     conn.close()
+
 
 def get_subscribers(username: str):
-    init_subscribers_db()
     conn = get_conn()
-    c = conn.cursor()
+    c = dict_cursor(conn)
     try:
-        c.execute('''SELECT id, email, first_name, last_name, groups 
-                   FROM subscribers
-                   WHERE username = ?''', (username,))
+        c.execute("SELECT id, email, first_name, last_name, groups FROM subscribers WHERE username = %s", (username,))
         rows = c.fetchall()
     except Exception as e:
         print(f"Error: {e}")
@@ -69,59 +65,58 @@ def get_subscribers(username: str):
     return [dict(row) for row in rows]
 
 def get_subscribers_email(username: str):
-    init_subscribers_db()
     conn = get_conn()
-    c = conn.cursor()
+    c = dict_cursor(conn)
     try:
-        c.execute('''SELECT email 
-                   FROM subscribers
-                   WHERE username = ?''', (username,))
+        c.execute("SELECT email FROM subscribers WHERE username = %s", (username,))
         rows = c.fetchall()
     except Exception as e:
         print(f"Error: {e}")
-        return None
+        return []
     conn.close()
     return [row["email"] for row in rows]
 
 def post_subscriber(username: str, email: str, first_name: str, last_name: str, groups: str):
-    init_subscribers_db()
     conn = get_conn()
-    c = conn.cursor()
+    c = dict_cursor(conn)
     try:
-        c.execute("INSERT INTO subscribers (username, email, first_name, last_name, groups) VALUES (?, ?, ?, ?, ?)", (username, email, first_name, last_name, groups))
+        c.execute("INSERT INTO subscribers (username, email, first_name, last_name, groups) VALUES (%s, %s, %s, %s, %s)",
+                  (username, email, first_name, last_name, groups))
         conn.commit()
     except Exception as e:
         print(f"Error: {e}")
+        conn.rollback()
     conn.close()
 
 def put_subscriber(id: str, email: str, first_name: str, last_name: str, groups: str = None):
-    init_subscribers_db()
     conn = get_conn()
-    c = conn.cursor()
+    c = dict_cursor(conn)
     try:
-        c.execute("UPDATE subscribers SET email = ?, first_name = ?, last_name = ?, groups = ? WHERE id = ?", (email, first_name, last_name, groups, id))
+        c.execute("UPDATE subscribers SET email = %s, first_name = %s, last_name = %s, groups = %s WHERE id = %s",
+                  (email, first_name, last_name, groups, id))
         conn.commit()
     except Exception as e:
         print(f"Error: {e}")
+        conn.rollback()
     conn.close()
 
 def delete_subscriber(username: str, email: str):
-    init_subscribers_db()
     conn = get_conn()
-    c = conn.cursor()
+    c = dict_cursor(conn)
     try:
-        c.execute("DELETE FROM subscribers WHERE username = ? AND email = ?", (username, email))
+        c.execute("DELETE FROM subscribers WHERE username = %s AND email = %s", (username, email))
         conn.commit()
     except Exception as e:
         print(f"Error: {e}")
+        conn.rollback()
     conn.close()
 
+
 def get_campaign_username(id: str):
-    init_subscribers_db()
     conn = get_conn()
-    c = conn.cursor()
+    c = dict_cursor(conn)
     try:
-        c.execute("SELECT username FROM credentials WHERE id = ?", (id,))
+        c.execute("SELECT username FROM credentials WHERE id = %s", (id,))
         row = c.fetchone()
     except Exception as e:
         print(f"Error: {e}")
@@ -130,11 +125,10 @@ def get_campaign_username(id: str):
     return row["username"] if row else None
 
 def get_campaign_id(username: str):
-    init_subscribers_db()
     conn = get_conn()
-    c = conn.cursor()
+    c = dict_cursor(conn)
     try:
-        c.execute("SELECT id FROM credentials WHERE username = ?", (username,))
+        c.execute("SELECT id FROM credentials WHERE username = %s", (username,))
         row = c.fetchone()
     except Exception as e:
         print(f"Error: {e}")
@@ -142,211 +136,150 @@ def get_campaign_id(username: str):
     conn.close()
     return row["id"] if row else None
 
-def init_subscribers_db():
-    conn = get_conn()
-    c = conn.cursor()
-    c.executescript("""
-        CREATE TABLE IF NOT EXISTS subscribers (
-            id                INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT     NOT NULL,
-            email TEXT        NOT NULL,
-            first_name TEXT   NOT NULL,
-            last_name TEXT    NOT NULL,
-            UNIQUE(username, email)
-        );
-    """)
-    conn.commit()
-    conn.close()
-
-def init_credentials_db():
-    conn = get_conn()
-    c = conn.cursor()
-    c.executescript("""
-        CREATE TABLE IF NOT EXISTS credentials (
-            id       INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT    NOT NULL UNIQUE,
-            email TEXT    NOT NULL UNIQUE,
-            password     TEXT    NOT NULL
-        );
-    """)
-    conn.commit()
-    conn.close()
-
-def init_db():
-    conn = get_conn()
-    c = conn.cursor()
-    c.executescript("""
-        CREATE TABLE IF NOT EXISTS users (
-            id       INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT    NOT NULL UNIQUE,
-            password TEXT    NOT NULL,
-            role     TEXT    NOT NULL DEFAULT 'student'
-        );
-    """)
-    conn.commit()
-    conn.close()
-
-# ── Users ────────────────────────────────────────────────────────────────────
 
 def get_user_by_username(username: str):
-    init_credentials_db()
     conn = get_conn()
-    c = conn.cursor()
-    c.execute("""SELECT u.id, u.username, u.role, u.password, c.email FROM users u
-              LEFT JOIN credentials c ON c.username = u.username
-              WHERE u.username = ?""", (username,))
+    c = dict_cursor(conn)
+    c.execute("""SELECT u.id, u.username, u.role, u.password, c.email
+                 FROM users u
+                 LEFT JOIN credentials c ON c.username = u.username
+                 WHERE u.username = %s""", (username,))
     row = c.fetchone()
     conn.close()
     return dict(row) if row else None
-
 
 def get_user_by_id(user_id: int):
     conn = get_conn()
-    c = conn.cursor()
-    c.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+    c = dict_cursor(conn)
+    c.execute("SELECT * FROM users WHERE id = %s", (user_id,))
     row = c.fetchone()
     conn.close()
     return dict(row) if row else None
 
-
 def create_user(username: str, hashed_password: str, role: str = "student"):
     conn = get_conn()
-    c = conn.cursor()
+    c = dict_cursor(conn)
     try:
-        c.execute(
-            "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
-            (username, hashed_password, role),
-        )
+        c.execute("INSERT INTO users (username, password, role) VALUES (%s, %s, %s) RETURNING id",
+                  (username, hashed_password, role))
+        user_id = c.fetchone()["id"]
         conn.commit()
-        user_id = c.lastrowid
-    except sqlite3.IntegrityError:
+    except Exception as e:
+        print(f"Error: {e}")
+        conn.rollback()
         user_id = None
     conn.close()
     return user_id
 
-
 def get_all_users():
     conn = get_conn()
-    c = conn.cursor()
+    c = dict_cursor(conn)
     c.execute("SELECT id, username, role, emails FROM users ORDER BY id")
     rows = c.fetchall()
     conn.close()
     return [dict(r) for r in rows]
 
-
 def update_user_role(user_id: int, role: str):
     conn = get_conn()
-    c = conn.cursor()
-    c.execute("UPDATE users SET role = ? WHERE id = ?", (role, user_id))
+    c = dict_cursor(conn)
+    c.execute("UPDATE users SET role = %s WHERE id = %s", (role, user_id))
     conn.commit()
     conn.close()
 
 def get_user_emails(username: str):
     conn = get_conn()
-    c = conn.cursor()
-    c.execute("SELECT emails FROM users WHERE username = ?", (username,))
+    c = dict_cursor(conn)
+    c.execute("SELECT emails FROM users WHERE username = %s", (username,))
     row = c.fetchone()
     conn.close()
     return row["emails"] if row else 0
 
 def get_user_sent_emails(username: str):
     conn = get_conn()
-    c = conn.cursor()
-    c.execute("SELECT sent FROM users WHERE username = ?", (username,))
+    c = dict_cursor(conn)
+    c.execute("SELECT sent FROM users WHERE username = %s", (username,))
     row = c.fetchone()
     conn.close()
     return row["sent"] if row else 0
 
 def delete_user(user_id: int):
     conn = get_conn()
-    c = conn.cursor()
-    c.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    c = dict_cursor(conn)
+    c.execute("DELETE FROM users WHERE id = %s", (user_id,))
     conn.commit()
     conn.close()
-
-def get_username_emails(username: str):
-    conn = get_conn()
-    c = conn.cursor()
-    c.execute("""SELECT * FROM emails
-              WHERE username = ?
-              AND sent = 0""", (username,))
-    rows = c.fetchall()
-    conn.commit()
-    conn.close()
-    return [dict(row) for row in rows]
-
-def get_email_by_id(id: int):
-    conn = get_conn()
-    c = conn.cursor()
-    c.execute("""SELECT * FROM emails
-              WHERE id = ?""", (id,))
-    row = c.fetchone()
-    conn.commit()
-    conn.close()
-    return dict(row) if row else None
 
 def put_sent_emails(username: str, recipients: int):
     conn = get_conn()
-    c = conn.cursor()
-    c.execute("""UPDATE users
-              SET sent = sent + ?
-              WHERE username = ?""", (recipients, username))
+    c = dict_cursor(conn)
+    c.execute("UPDATE users SET sent = sent + %s WHERE username = %s", (recipients, username))
     conn.commit()
     conn.close()
 
 def put_created_emails(username: str):
     conn = get_conn()
-    c = conn.cursor()
-    try:
-        current_emails = get_user_emails(username) + 1
-    except Exception as e:
-        current_emails = 1
-    c.execute("""UPDATE users 
-              SET emails = ? 
-              WHERE username = ?""", (current_emails,username))
+    c = dict_cursor(conn)
+    c.execute("UPDATE users SET emails = emails + 1 WHERE username = %s", (username,))
     conn.commit()
     conn.close()
 
+
+def get_username_emails(username: str):
+    conn = get_conn()
+    c = dict_cursor(conn)
+    c.execute("SELECT * FROM emails WHERE username = %s AND sent = 0", (username,))
+    rows = c.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+def get_email_by_id(id: int):
+    conn = get_conn()
+    c = dict_cursor(conn)
+    c.execute("SELECT * FROM emails WHERE id = %s", (id,))
+    row = c.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def get_email_body(id: int):
+    conn = get_conn()
+    c = dict_cursor(conn)
+    c.execute("SELECT body FROM emails WHERE id = %s", (id,))
+    row = c.fetchone()
+    conn.close()
+    return row["body"] if row else None
+
+def update_email_body(id: int, body: str):
+    conn = get_conn()
+    c = dict_cursor(conn)
+    c.execute("UPDATE emails SET body = %s WHERE id = %s", (body, id))
+    conn.commit()
+    conn.close()
+
+def post_save_email(username: str, body: str, plain: str, header: str, sent: int = 0):
+    conn = get_conn()
+    c = dict_cursor(conn)
+    c.execute("INSERT INTO emails (username, body, plain, header, date, sent) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id",
+              (username, body, plain, header, datetime.now(), sent))
+    email_id = c.fetchone()["id"]
+    conn.commit()
+    conn.close()
+    return email_id
+
 def delete_email_by_id(id: int):
     conn = get_conn()
-    c = conn.cursor()
-    c.execute("UPDATE emails SET sent = 1 WHERE id = ?", (id,))
+    c = dict_cursor(conn)
+    c.execute("UPDATE emails SET sent = 1 WHERE id = %s", (id,))
     conn.commit()
     conn.close()
 
 def put_email_as_sent(id: int):
     conn = get_conn()
     c = conn.cursor()
-    c.execute("""UPDATE emails 
-              SET sent = 1 
-              WHERE id = ?""", (id,))
-    conn.commit()
-    conn.close()
-
-def get_email_body(id: int):
-    conn = get_conn()
-    c = conn.cursor()
-    c.execute("""SELECT body
-              FROM emails
-              WHERE id = ?""", (id,))
-    row = c.fetchone()
-    conn.commit()
-    conn.close()
-    return row["body"] if row else None
-
-def update_email_body(id: int, body: str):
-    conn = get_conn()
-    c = conn.cursor()
-    c.execute("UPDATE emails SET body = ? WHERE id = ?", (body, id))
+    c.execute("UPDATE emails SET sent = 1 WHERE id = %s", (id,))
     conn.commit()
     conn.close()
 
 
-def post_save_email(username: str, body: str, plain: str, header: str, sent: int = 0):
-    conn = get_conn()
-    c = conn.cursor()
-    c.execute("""INSERT INTO emails (username, body, plain, header, date, sent) VALUES (?,?,?,?,?,?)""", (username, body, plain, header, datetime.now(), sent))
-    conn.commit()
-    conn.close()
-    email_id = c.lastrowid
-    return email_id
+def init_db(): pass
+def init_credentials_db(): pass
+def init_subscribers_db(): pass

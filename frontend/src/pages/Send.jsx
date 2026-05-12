@@ -78,6 +78,7 @@ function Send({ user, onLogout }) {
     async function deleteEmail(id) {
         setSuccess('')
         setError('')
+        setSelected(null)
         try {
             await apiDeleteEmail(id)
             setEmailSuccess("Successfully deleted email")
