@@ -50,21 +50,17 @@ function Send({ user, onLogout }) {
     async function handleSend() {
         setError(''); setSuccess('')
         if (!selected) { setError('Please select an email to send'); return }
-        if (selectedRows.length === 0) { setError('Please select a subscriber to recieve an email'); return }
-        const recipients = selectedRows.map(rowId => {
-            const row = rows.find(r => r.id === rowId)
-            return row?.email
-        }).filter(Boolean)
+        if (selectedSubscribers.length === 0) { setError('Please select a subscriber to recieve an email'); return }
+
+        setLoading(true)
+        const recipients = selectedSubscribers.map(row => row.email)
         try {
-            const email = await getEmailById(selected)
-            await apiSend(email.header, {
-                recipients: recipients,
-                subject: email.header,
-                body: email.body
-            })
-            setSuccess(`Email successfully sent to ${selectedRows.length} emails`)
+            await apiSendSavedEmail(selected, recipients)
+            setSuccess(`Email successfully sent to ${selectedRows.length} ${selectedRows.length === 1 ? 'email' : 'emails'}`)
+            getEmails()
+            setSelected(null)
         } catch (err) {
-            setError(err.message || 'Failed to send email')
+            setError(err.message)
         } finally {
             setLoading(false)
         }
@@ -190,21 +186,22 @@ function Send({ user, onLogout }) {
                     </div>
                 </div>
 
-                {rows.length > 0 ? (
-                    <DataGrid rows={rows}
-                        columns={columns}
-                        getRowId={row => row.id}
-                        checkboxSelection
-                        disableRowSelectionOnClick
-                        onRowSelectionModelChange={(ids) => setSelectedRows(ids)}
-                    />
-                ) : (
-                    <div className="card" style={{ textAlign: 'center', fontSize: '16px', padding: '20px' }}>
-                        <p>No subscribers found. <Link className="no-email" to="/subscribers">Add subscribers first</Link></p>
-                    </div>
-                )}
+                <DataGrid rows={rows}
+                    columns={columns}
+                    getRowId={row => row.id}
+                    checkboxSelection
+                    disableRowSelectionOnClick
+                    onRowSelectionModelChange={(model) => {
+                        if (model.type === 'include') {
+                            setSelectedRows(Array.from(model.ids))
+                        } else {
+                            // 'exclude' means all rows except the ids in the set
+                            const excludedIds = Array.from(model.ids)
+                            setSelectedRows(rows.map(r => r.id).filter(id => !excludedIds.includes(id)))
+                        }
+                    }}
+                />
 
-                {success && <p className="auth-success" style={{ color: 'var(--green)' }}>{success}</p>}
                 {error && <p className="auth-error">{error}</p>}
 
                 {success && <p className="auth-success">{success}</p>}

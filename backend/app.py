@@ -331,10 +331,18 @@ def api_save_email():
     data    = request.get_json(force=True)
     subject = data.get("subject", "")
     fields  = data.get("fields", [])
+    bg_color = data.get("bgColor", "")  # NEW: get background color
 
     text_parts = []
-    html_parts = ["<div style='font-family:sans-serif;max-width:600px;margin:auto;padding:20px'>"]
-
+    html_parts = []
+    
+    # NEW: Add background wrapper if color is selected
+    if bg_color:
+        html_parts.append(f"<div style='background:{bg_color};padding:20px'>")
+    else:
+        html_parts.append("<div style='padding:20px'>")
+    
+    html_parts.append("<div style='font-family:sans-serif;max-width:600px;margin:auto;padding:20px;background:white'>")
     for f in fields:
         ftype = f.get("type")
         value = (f.get("value") or "").strip()
@@ -353,7 +361,9 @@ def api_save_email():
             text_parts.append("[Image]")
             html_parts.append(f"<img src='{value}' style='max-width:100%;border-radius:6px;margin:12px 0' alt=''/>")
 
-    html_parts.append("</div>")
+    html_parts.append("</div>")  # Close inner white box
+    html_parts.append("</div>")  # Close outer background wrapper
+    
     body_text = "\n\n".join(text_parts)
     body_html = "".join(html_parts)
     post_save_email(username, body_html, body_text, subject)
@@ -367,13 +377,13 @@ def api_send_save_email():
     creds    = get_credentials_username(username)
     if not creds:
         return jsonify({"msg": "No sender credentials set up"}), 400
-    data    = request.get_json(force=True)
+    data = request.get_json(force=True)
     id = data.get("id")
     recipients = data.get("recipients")
-    data = get_email_by_id(id)
-    subject = data["header"]
-    body_text = data["plain"]
-    body_html = data["body"]
+    email_data = get_email_by_id(id)
+    subject = email_data["header"]
+    body_text = email_data["plain"]
+    body_html = email_data["body"]
     send_email(creds["email"], creds["password"], recipients, subject, body_text, body_html)
     put_email_as_sent(id)
     put_sent_emails(username, len(recipients))

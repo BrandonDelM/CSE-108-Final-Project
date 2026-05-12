@@ -57,7 +57,7 @@ function Mail({ user, onLogout }) {
         setSuccess('')
         try {
             const payload = fields.map(f => ({ type: f.type, value: f.value || '' }))
-            const data = await apiSave(subject, payload)
+            const data = await apiSave(subject, payload, bgColor)
             setSuccess(data.msg)
         } catch (err) {
             setError("Couldn't save email to the server")
