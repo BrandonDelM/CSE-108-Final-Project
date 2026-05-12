@@ -26,9 +26,11 @@ jwt_secret = os.getenv("JWT_SECRET")
 app.config["SECRET_KEY"]                 = secret_key
 app.config["JWT_SECRET_KEY"]             = jwt_secret
 app.config["JWT_TOKEN_LOCATION"]         = ["cookies"]
-app.config["JWT_COOKIE_SECURE"]          = False
 app.config["JWT_COOKIE_CSRF_PROTECT"]    = False
-app.config["JWT_COOKIE_SAMESITE"]        = "Lax"
+
+is_production = os.getenv("PRODUCTION", "false").lower() == "true"
+app.config["JWT_COOKIE_SECURE"]   = is_production
+app.config["JWT_COOKIE_SAMESITE"] = "None" if is_production else "Lax"
 app.config["JWT_SESSION_COOKIE"]         = False
 app.config["JWT_ACCESS_TOKEN_EXPIRES"]   = timedelta(hours=2)
 app.config["PROPAGATE_EXCEPTIONS"]       = True
@@ -87,6 +89,8 @@ def index():
 
 @app.route("/register", methods=["POST", "OPTIONS"])
 def register():
+    if request.method == "OPTIONS":
+        return "", 204
     data     = request.get_json(force=True)
     username = (data.get("username") or "").strip()
     password = (data.get("password") or "")
@@ -543,6 +547,7 @@ def api_send():
 # ── Startup ───────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
+    init_db()
     port = int(os.getenv("PORT", 5000))
 
     # Seed an admin account if none exists
