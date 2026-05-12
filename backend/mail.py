@@ -12,14 +12,14 @@ def temp():
     conn = get_conn()
     c = conn.cursor()
     # c.execute("UPDATE emails SET sent = 0")
-    # c.execute("ALTER TABLE emails ADD COLUMN sent INTEGER")
+    # c.execute("ALTER TABLE emails ADD COLUMN plain TEXT")
     # c.execute("INSERT INTO groups (username, body, header, date) VALUES (?,?,?,?)", ("test", "<p>HELLO</p>", "Funny", "2026-05-10"))
-    c.execute("""CREATE TABLE IF NOT EXISTS groups (
-              id                INTEGER PRIMARY KEY AUTOINCREMENT,
-              username          TEXT NOT NULL,
-              email             TEXT NOT NULL,
-              name             TEXT NOT NULL 
-              )""")
+    # c.execute("""CREATE TABLE IF NOT EXISTS groups (
+    #           id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    #           username          TEXT NOT NULL,
+    #           email             TEXT NOT NULL,
+    #           name             TEXT NOT NULL 
+    #           )""")
     conn.commit()
     conn.close()
 

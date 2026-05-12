@@ -320,6 +320,85 @@ def api_delete_user(uid):
     delete_user(uid)
     return jsonify({"msg": "Deleted"})
 
+@app.route("/api/save", methods=["POST"])
+@jwt_required()
+def api_save_email():
+    username = get_jwt_identity()
+    creds    = get_credentials_username(username)
+    if not creds:
+        return jsonify({"msg": "No sender credentials set up"}), 400
+
+    data    = request.get_json(force=True)
+    subject = data.get("subject", "")
+    fields  = data.get("fields", [])
+    bg_color = data.get("bgColor", "")  # NEW: get background color
+
+    text_parts = []
+    html_parts = []
+    
+    # NEW: Add background wrapper if color is selected
+    if bg_color:
+        html_parts.append(f"<div style='background:{bg_color};padding:20px'>")
+    else:
+        html_parts.append("<div style='padding:20px'>")
+    
+    html_parts.append("<div style='font-family:sans-serif;max-width:600px;margin:auto;padding:20px;background:white'>")
+    for f in fields:
+        ftype = f.get("type")
+        value = (f.get("value") or "").strip()
+        if not value:
+            continue
+        if ftype == "header":
+            text_parts.append(value.upper())
+            html_parts.append(f"<h1 style='font-size:24px;color:#111'>{value}</h1>")
+        elif ftype == "body":
+            text_parts.append(value)
+            html_parts.append(f"<div style='font-size:15px;color:#333;line-height:1.6;margin:0 0 16px 0'>{value}</div>")
+        elif ftype == "link":
+            text_parts.append(value)
+            html_parts.append(f"<p><a href='{value}' style='color:#e8a030'>{value}</a></p>")
+        elif ftype == "image":
+            text_parts.append("[Image]")
+            html_parts.append(f"<img src='{value}' style='max-width:100%;border-radius:6px;margin:12px 0' alt=''/>")
+
+    html_parts.append("</div>")  # Close inner white box
+    html_parts.append("</div>")  # Close outer background wrapper
+    
+    body_text = "\n\n".join(text_parts)
+    body_html = "".join(html_parts)
+    post_save_email(username, body_html, body_text, subject)
+    put_created_emails(username)
+    return jsonify({"msg": f"Successfully saved email"}), 200
+
+@app.route("/api/mail/send", methods=["POST"])
+@jwt_required()
+def api_send_save_email():
+    username = get_jwt_identity()
+    creds    = get_credentials_username(username)
+    if not creds:
+        return jsonify({"msg": "No sender credentials set up"}), 400
+    data = request.get_json(force=True)
+    id = data.get("id")
+    recipients = data.get("recipients")
+    email_data = get_email_by_id(id)
+    subject = email_data["header"]
+    body_text = email_data["plain"]
+    body_html = email_data["body"]
+    send_email(creds["email"], creds["password"], recipients, subject, body_text, body_html)
+    put_email_as_sent(id)
+    put_sent_emails(username, len(recipients))
+    return jsonify({"msg": f"Sent to {len(recipients)} subscribers"}), 200
+
+@app.route("/api/mail/delete", methods=["DELETE"])
+@jwt_required()
+def api_delete_email():
+    data = request.get_json(force=True)
+    id = data.get("id")
+    recipients = data.get("recipients")
+    data = get_email_by_id(id)
+    delete_email_by_id(id)
+    return jsonify({"msg": f"Deleted email successfully"}), 200
+
 @app.route("/api/send", methods=["POST"])
 @jwt_required()
 def api_send():
@@ -370,6 +449,8 @@ def api_send():
     recipients = get_subscribers_email(username)
 
     send_email(creds["email"], creds["password"], recipients, subject, body_text, body_html)
+    put_created_emails(username)
+    put_sent_emails(username, len(recipients))
     return jsonify({"msg": f"Sent to {len(recipients)} subscribers"}), 200
 # ── Startup ───────────────────────────────────────────────────────────────────
 

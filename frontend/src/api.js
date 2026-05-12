@@ -183,6 +183,17 @@ export async function apiSend(subject, fields, bgColor = '') {
     return res.json()
 }
 
+export async function apiSave(subject, fields, bgColor) {
+    const res = await fetch('/api/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ subject, fields, bgColor }),
+    })
+    if (!res.ok) throw new Error('Failed to send')
+    return res.json()
+}
+
 export async function getCreatedEmails(username) {
     const res = await fetch('/api/mail', {
         method: 'GET',
@@ -198,6 +209,28 @@ export async function getEmailById(id) {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'X-Id': id },
         credentials: 'include',
+    })
+    if (!res.ok) throw new Error('Failed to send')
+    return res.json()
+}
+
+export async function apiSendSavedEmail(id, recipients) {
+    const res = await fetch('/api/mail/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({ "id": id, "recipients": recipients })
+    })
+    if (!res.ok) throw new Error('Failed to send')
+    return res.json()
+}
+
+export async function apiDeleteEmail(id) {
+    const res = await fetch('/api/mail/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json'},
+        credentials: 'include',
+        body: JSON.stringify({ "id": id })
     })
     if (!res.ok) throw new Error('Failed to send')
     return res.json()
