@@ -39,7 +39,7 @@ app.config["SQLALCHEMY_DATABASE_URI"]    = (
 jwt    = JWTManager(app)
 bcrypt = Bcrypt(app)
 db     = SQLAlchemy(app)
-CORS(app, origins=["http://127.0.0.1:5173", "http://localhost:5173"],
+CORS(app, origins=["http://127.0.0.1:5173", "http://localhost:5173", "https://cse108finalproject-delta.vercel.app/"],
      supports_credentials=True)
 
 class User(db.Model):
@@ -524,7 +524,7 @@ def api_send():
 # ── Startup ───────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    init_db()
+    port = int(os.getenv("PORT", 5000))
 
     # Seed an admin account if none exists
     if not get_user_by_username("admin"):
@@ -532,4 +532,5 @@ if __name__ == "__main__":
         create_user("admin", hashed, "admin")
         print("✓  Created default admin  (username: admin, password: admin123)")
 
-    app.run(debug=True, port=5000)
+
+    app.run(host="0.0.0.0", port=port)
