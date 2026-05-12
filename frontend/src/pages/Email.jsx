@@ -5,7 +5,7 @@ import { getEmailHTMLById } from '../api.js'
 import TextEditor from '../TextEditor.jsx'
 import DOMPurify from 'dompurify'
 
-function Email({ user, onLogout }) {
+function Email() {
     const { emailId } = useParams()
     const navigate = useNavigate()
     const [valid, setValid] = useState(null)
