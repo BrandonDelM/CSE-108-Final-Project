@@ -30,7 +30,7 @@ export default function Dashboard({ user, onLogout, onNavigate }) {
   async function GetSent() {
     try {
       const sent = await apiGetSentEmails(user.username)
-      setSent(emails)
+      setSent(sent)
     } catch (err) {
       setError("Couldn't fetch total subscribers")
     }

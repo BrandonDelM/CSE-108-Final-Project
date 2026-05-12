@@ -1,6 +1,7 @@
 import './Dashboard.css'
 import { useState } from 'react'
 import { apiLogin, apiPostCredentials, apiRegister } from '../api.js'
+import { Link } from 'react-router-dom'
 
 export default function Dashboard({ user, onLogout, onSetupComplete }) {
   const [mode, setMode] = useState('login')

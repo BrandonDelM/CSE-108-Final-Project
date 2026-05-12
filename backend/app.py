@@ -12,6 +12,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import timedelta
 from database import *
 import os
+from send_email import *
 
 app = Flask(__name__)
 
@@ -210,7 +211,7 @@ def put_campaign_subscriber():
     try:
         groups: str = data.get('groups')
     except Exception as e:
-        ...
+        print(e)
     try:
         put_subscriber(id, email, first_name, last_name, groups)
     except Exception as e:
@@ -282,6 +283,22 @@ def api_get_campaign_id():
         return jsonify({"msg": "Campaign username not found"}), 404
     return jsonify(id), 200
 
+@app.route("/api/mail", methods=["GET"])
+def api_get_username_mail():
+    username: str = request.headers.get('X-Username')
+    emails = get_username_emails(username)
+    if emails is None:
+        return jsonify({"msg": "Campaign username not found"}), 404
+    return jsonify(emails), 200
+
+@app.route("/api/mail/id", methods=["GET"])
+def api_get_email_by_id():
+    id: int = request.headers.get('X-Id')
+    email = get_email_by_id(id)
+    if email is None:
+        return jsonify({"msg": "Email can't be found"}), 404
+    return jsonify(email), 200
+
 @app.route("/api/users/<int:uid>", methods=["PATCH"])
 def api_update_user(uid):
     _, err = require_admin()
@@ -306,8 +323,6 @@ def api_delete_user(uid):
 @app.route("/api/send", methods=["POST"])
 @jwt_required()
 def api_send():
-    from send_email import send_email
-
     username = get_jwt_identity()
     creds    = get_credentials_username(username)
     if not creds:
@@ -316,10 +331,18 @@ def api_send():
     data    = request.get_json(force=True)
     subject = data.get("subject", "")
     fields  = data.get("fields", [])
+    bg_color = data.get("bgColor", "")  # NEW: get background color
 
     text_parts = []
-    html_parts = ["<div style='font-family:sans-serif;max-width:600px;margin:auto;padding:20px'>"]
-
+    html_parts = []
+    
+    # NEW: Add background wrapper if color is selected
+    if bg_color:
+        html_parts.append(f"<div style='background:{bg_color};padding:20px'>")
+    else:
+        html_parts.append("<div style='padding:20px'>")
+    
+    html_parts.append("<div style='font-family:sans-serif;max-width:600px;margin:auto;padding:20px;background:white'>")
     for f in fields:
         ftype = f.get("type")
         value = (f.get("value") or "").strip()
@@ -338,11 +361,13 @@ def api_send():
             text_parts.append("[Image]")
             html_parts.append(f"<img src='{value}' style='max-width:100%;border-radius:6px;margin:12px 0' alt=''/>")
 
-    html_parts.append("</div>")
+    html_parts.append("</div>")  # Close inner white box
+    html_parts.append("</div>")  # Close outer background wrapper
+    
     body_text = "\n\n".join(text_parts)
     body_html = "".join(html_parts)
 
-    recipients = get_subscribers_email(username) #must change for groups ofpeople
+    recipients = get_subscribers_email(username)
 
     send_email(creds["email"], creds["password"], recipients, subject, body_text, body_html)
     return jsonify({"msg": f"Sent to {len(recipients)} subscribers"}), 200

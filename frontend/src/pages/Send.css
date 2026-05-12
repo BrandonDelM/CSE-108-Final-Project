@@ -1,0 +1,15 @@
+.card-hover-2:hover {
+  background: var(--ink-3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+}
+
+.no-email {
+  text-decoration: None;
+  color: var(--text-2);
+}
+
+.no-email:hover {
+    color: var(--text-3);
+}
