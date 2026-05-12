@@ -2,19 +2,26 @@ import './Dashboard.css'
 import './Send.css'
 import { Link } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
-import { apiSend, getCreatedEmails, apiGetSubscribers } from '../api.js'
+import { apiSend, getCreatedEmails, apiGetSubscribers, getEmailById, apiSendSavedEmail, apiDeleteEmail } from '../api.js'
 import { DataGrid } from '@mui/x-data-grid';
 import DOMPurify from 'dompurify'
 
 
 function Send({ user, onLogout }) {
     const [error, setError] = useState('')
+    const [success, setSuccess] = useState('')
+
+    const [emailError, setEmailError] = useState('')
+    const [emailSuccess, setEmailSuccess] = useState('')
+
     const [emails, setEmails] = useState([])
     const [selected, setSelected] = useState(null)
     const [rows, setRows] = useState([])
     const [selectedRows, setSelectedRows] = useState([])
     const [previewEmail, setPreviewEmail] = useState(null)
     const [loading, setLoading] = useState(false)
+
+    const selectedSubscribers = rows.filter(row => selectedRows.includes(row.id))
 
     const columns = [
         { field: 'email', headerName: 'Email', width: 300 },
@@ -42,16 +49,18 @@ function Send({ user, onLogout }) {
 
     async function handleSend() {
         setError(''); setSuccess('')
-        setLoading(true)
         if (!selected) { setError('Please select an email to send'); return }
         if (selectedSubscribers.length === 0) { setError('Please select a subscriber to recieve an email'); return }
+
+        setLoading(true)
         const recipients = selectedSubscribers.map(row => row.email)
         try {
-            const email = getEmailbyId(selected)
+            await apiSendSavedEmail(selected, recipients)
+            setSuccess(`Email successfully sent to ${selectedRows.length} ${selectedRows.length === 1 ? 'email' : 'emails'}`)
+            getEmails()
         } catch (err) {
-            setError(err)
+            setError(err.message)
         } finally {
-            setSuccess(`Email successfully sent to ${selectedRows.length} emails`)
             setLoading(false)
         }
     }
@@ -62,6 +71,18 @@ function Send({ user, onLogout }) {
             setEmails(data)
         } catch (err) {
             setError("Couldn't fetch user's emails")
+        }
+    }
+
+    async function deleteEmail(id) {
+        setSuccess('')
+        setError('')
+        try {
+            await apiDeleteEmail(id)
+            setEmailSuccess("Successfully deleted email")
+            getEmails()
+        } catch (err) {
+            setEmailError("Couldn't delete email")
         }
     }
 
@@ -99,6 +120,10 @@ function Send({ user, onLogout }) {
                     </div>
                 </div>
 
+                {emailSuccess && <p className="auth-success">{emailSuccess}</p>}
+
+                {emailError && <p className="auth-success">{emailError}</p>}
+
                 {loading ? <span className="spinner" />
                     : emails.length > 0 ?
                         emails.map(email =>
@@ -129,6 +154,16 @@ function Send({ user, onLogout }) {
                                     >
                                         {previewEmail === email.id ? 'Hide Email' : 'Show Email'}
                                     </button>
+                                    <button
+                                        className="btn btn-ghost btn-sm"
+                                        type="button"
+                                        onClick={e => {
+                                            e.stopPropagation()
+                                            deleteEmail(email.id)
+                                        }}
+                                    >
+                                        Delete Email
+                                    </button>
                                     {previewEmail === email.id && (
                                         <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(email.body) }} />
                                     )}
@@ -155,15 +190,25 @@ function Send({ user, onLogout }) {
                     getRowId={row => row.id}
                     checkboxSelection
                     disableRowSelectionOnClick
-                    onRowSelectionModelChange={(ids) => setSelectedRows(ids)}
+                    onRowSelectionModelChange={(model) => {
+                        if (model.type === 'include') {
+                            setSelectedRows(Array.from(model.ids))
+                        } else {
+                            // 'exclude' means all rows except the ids in the set
+                            const excludedIds = Array.from(model.ids)
+                            setSelectedRows(rows.map(r => r.id).filter(id => !excludedIds.includes(id)))
+                        }
+                    }}
                 />
 
                 {error && <p className="auth-error">{error}</p>}
 
+                {success && <p className="auth-success">{success}</p>}
+
                 {loading
                     ? <span className="spinner" />
-                    : <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} onClick={handleSend} disabled={loading}>
-                        Send
+                    : selectedRows.length > 0 && selected && <button className="btn btn-primary" style={{ alignSelf: 'flex-start' }} onClick={handleSend} disabled={loading}>
+                        {selectedRows.length === rows.length ? 'Send to All subscribers' : selectedSubscribers.length === 0 ? 'Select email recievers' : `Send to ${selectedSubscribers.length} subscribers`}
                     </button>}
 
             </main>
