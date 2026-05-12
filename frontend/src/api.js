@@ -250,6 +250,10 @@ export async function getEmailHTMLById(id) {
     method: 'GET',
     headers: { 'Content-Type': 'application/json', 'X-Id': id }
   })
-  if (!res.ok) throw new Error('Failed to fetch email HTML')
+  if (!res.ok) {
+    const errorData = await res.text();
+    console.error(`Errro (${res.status}):`, errorData);
+    throw new Error('Failed to fetch email HTML');
+  }
   return res.json()
 }
