@@ -427,32 +427,53 @@ def api_save_email():
 @app.route("/api/mail/send", methods=["POST"])
 @jwt_required()
 def api_send_save_email():
-    username = get_jwt_identity()
-    creds    = get_credentials_username(username)
-    if not creds:
-        return jsonify({"msg": "No sender credentials set up"}), 400
-    data = request.get_json(force=True)
-    data = request.get_json()
-    if not data:
-        return jsonify({"msg": "Invalid or missing JSON"}), 400
-    id = data.get("id")
-    if not id or not recipients:
-        return jsonify({"msg": "Missing id or recipients"}), 400
-    recipients = data.get("recipients")
-    email_data = get_email_by_id(id)
-    if not email_data:
-        return jsonify({"msg": "Email not found"}), 404
-    subject = email_data["header"]
-    body_text = email_data["plain"]
-    body_html = email_data["body"]
+    try:
+        username = get_jwt_identity()
+        creds = get_credentials_username(username)
 
-    decrypted_password = decrypt_password(creds["password"])  
+        if not creds:
+            return jsonify({"msg": "No sender credentials set up"}), 400
 
-    send_email(creds["email"], decrypted_password, recipients, subject, body_text, body_html)
-    put_email_as_sent(id)
-    put_sent_emails(username, len(recipients))
-    return jsonify({"msg": f"Sent to {len(recipients)} subscribers"}), 200
+        data = request.get_json()
+        if not data:
+            return jsonify({"msg": "Invalid JSON"}), 400
 
+        id = data.get("id")
+        recipients = data.get("recipients")
+
+        if not id or not recipients:
+            return jsonify({"msg": "Missing id or recipients"}), 400
+
+        if not isinstance(recipients, list):
+            return jsonify({"msg": "Recipients must be a list"}), 400
+
+        email_data = get_email_by_id(id)
+        if not email_data:
+            return jsonify({"msg": "Email not found"}), 404
+
+        subject = email_data["header"]
+        body_text = email_data["plain"]
+        body_html = email_data["body"]
+
+        decrypted_password = decrypt_password(creds["password"])
+
+        send_email(
+            creds["email"],
+            decrypted_password,
+            recipients,
+            subject,
+            body_text,
+            body_html
+        )
+
+        put_email_as_sent(id)
+        put_sent_emails(username, len(recipients))
+
+        return jsonify({"msg": f"Sent to {len(recipients)} subscribers"}), 200
+
+    except Exception as e:
+        print("API ERROR:", e)
+        return jsonify({"msg": "Internal server error", "error": str(e)}), 500
 @app.route("/api/mail/delete", methods=["DELETE"])
 @jwt_required()
 def api_delete_email():
