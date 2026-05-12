@@ -432,9 +432,16 @@ def api_send_save_email():
     if not creds:
         return jsonify({"msg": "No sender credentials set up"}), 400
     data = request.get_json(force=True)
+    data = request.get_json()
+    if not data:
+        return jsonify({"msg": "Invalid or missing JSON"}), 400
     id = data.get("id")
+    if not id or not recipients:
+        return jsonify({"msg": "Missing id or recipients"}), 400
     recipients = data.get("recipients")
     email_data = get_email_by_id(id)
+    if not email_data:
+        return jsonify({"msg": "Email not found"}), 404
     subject = email_data["header"]
     body_text = email_data["plain"]
     body_html = email_data["body"]
