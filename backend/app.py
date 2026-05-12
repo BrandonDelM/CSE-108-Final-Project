@@ -366,7 +366,16 @@ def api_save_email():
     
     body_text = "\n\n".join(text_parts)
     body_html = "".join(html_parts)
-    post_save_email(username, body_html, body_text, subject)
+
+    id = post_save_email(username, body_html, body_text, subject, 0)
+
+    web_link = f"http://localhost:8080/email/{id}"
+    view_in_browser = f"<div style='text-align:center;padding:8px;font-family:sans-serif;font-size:12px;color:#888'>Having trouble viewing this email? <a href='{web_link}' style='color:#e8a030'>View in browser</a></div>"
+
+    body_html = view_in_browser + body_html
+
+    update_email_body(id, body_html)
+
     put_created_emails(username)
     return jsonify({"msg": f"Successfully saved email"}), 200
 
@@ -384,6 +393,7 @@ def api_send_save_email():
     subject = email_data["header"]
     body_text = email_data["plain"]
     body_html = email_data["body"]
+
     send_email(creds["email"], creds["password"], recipients, subject, body_text, body_html)
     put_email_as_sent(id)
     put_sent_emails(username, len(recipients))
@@ -398,6 +408,14 @@ def api_delete_email():
     data = get_email_by_id(id)
     delete_email_by_id(id)
     return jsonify({"msg": f"Deleted email successfully"}), 200
+
+@app.route("/api/mail/html", methods=["GET"])
+def api_get_mail_html():
+    id = request.headers.get('X-Id')
+    body = get_email_body(id)
+    if body is None:
+        return jsonify({"msg": "No email associated with this id"}), 400
+    return jsonify(body)
 
 @app.route("/api/send", methods=["POST"])
 @jwt_required()
@@ -442,9 +460,18 @@ def api_send():
 
     html_parts.append("</div>")  # Close inner white box
     html_parts.append("</div>")  # Close outer background wrapper
-    
+
     body_text = "\n\n".join(text_parts)
     body_html = "".join(html_parts)
+
+    id = post_save_email(username, body_html, body_text, subject, 0)
+
+    web_link = f"http://localhost:8080/email/{id}"
+    view_in_browser = f"<div style='text-align:center;padding:8px;font-family:sans-serif;font-size:12px;color:#888'>Having trouble viewing this email? <a href='{web_link}' style='color:#e8a030'>View in browser</a></div>"
+
+    body_html = view_in_browser + body_html
+
+    update_email_body(id, body_html)
 
     recipients = get_subscribers_email(username)
 

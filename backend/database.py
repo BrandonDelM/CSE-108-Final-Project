@@ -320,9 +320,30 @@ def put_email_as_sent(id: int):
     conn.commit()
     conn.close()
 
-def post_save_email(username: str, body: str, plain: str, header: str):
+def get_email_body(id: int):
     conn = get_conn()
     c = conn.cursor()
-    c.execute("""INSERT INTO emails (username, body, plain, header, date, sent) VALUES (?,?,?,?,?,?)""", (username, body, plain, header, datetime.now(), 0))
+    c.execute("""SELECT body
+              FROM emails
+              WHERE id = ?""", (id,))
+    row = c.fetchone()
     conn.commit()
     conn.close()
+    return row["body"] if row else None
+
+def update_email_body(id: int, body: str):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("UPDATE emails SET body = ? WHERE id = ?", (body, id))
+    conn.commit()
+    conn.close()
+
+
+def post_save_email(username: str, body: str, plain: str, header: str, sent: int = 0):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("""INSERT INTO emails (username, body, plain, header, date, sent) VALUES (?,?,?,?,?,?)""", (username, body, plain, header, datetime.now(), sent))
+    conn.commit()
+    conn.close()
+    email_id = c.lastrowid
+    return email_id
