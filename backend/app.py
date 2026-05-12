@@ -42,13 +42,13 @@ db     = SQLAlchemy(app)
 CORS(app, origins=["http://127.0.0.1:5173", "http://localhost:5173"],
      supports_credentials=True)
 
-class User(db.Model):
+"""class User(db.Model):
     __tablename__ = "users"
     id       = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     role     = db.Column(db.String, nullable=False, default="student")
-
+"""
 class SecureAdminView(ModelView):
     column_exclude_list    = ["password"]
     form_excluded_columns  = ["password"]
