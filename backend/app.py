@@ -39,8 +39,8 @@ app.config["SQLALCHEMY_DATABASE_URI"]    = (
 jwt    = JWTManager(app)
 bcrypt = Bcrypt(app)
 db     = SQLAlchemy(app)
-CORS(app, origins=["http://127.0.0.1:5173", "http://localhost:5173", "https://cse108finalproject-delta.vercel.app/"],
-     supports_credentials=True)
+origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
+CORS(app, origins=origins, supports_credentials=True)
 
 class User(db.Model):
     __tablename__ = "users"
