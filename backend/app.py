@@ -42,6 +42,16 @@ db     = SQLAlchemy(app)
 origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
 CORS(app, origins=origins, supports_credentials=True)
 
+@app.after_request
+def after_request(response):
+    origin = request.headers.get('Origin')
+    if origin:
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-Username, X-Id'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+    return response
+
 class User(db.Model):
     __tablename__ = "users"
     id       = db.Column(db.Integer, primary_key=True)
