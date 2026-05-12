@@ -356,7 +356,7 @@ def api_save_email():
             continue
         if ftype == "header":
             text_parts.append(value.upper())
-            html_parts.append(f"<tr><td align='center'><h1 style='font-size:24px;color:#111;margin:0'>{value}</h1></td></tr>")
+            html_parts.append(f"<tr><td align='center'><h1 style='font-size:24px;color:#111;margin:0'>{value}</h1><hr></td></tr>")
         elif ftype == "body":
             text_parts.append(value)
             html_parts.append(f"<tr><td align='center'><div style='font-size:15px;color:#333;line-height:1.6'>{value}</div></td></tr>")
@@ -467,7 +467,7 @@ def api_send():
             continue
         if ftype == "header":
             text_parts.append(value.upper())
-            html_parts.append(f"<tr><td align='center'><h1 style='font-size:24px;color:#111;margin:0'>{value}</h1></td></tr>")
+            html_parts.append(f"<tr><td align='center'><h1 style='font-size:24px;color:#111;margin:0'>{value}</h1><hr></td></tr>")
         elif ftype == "body":
             text_parts.append(value)
             html_parts.append(f"<tr><td align='center'><div style='font-size:15px;color:#333;line-height:1.6'>{value}</div></td></tr>")
