@@ -232,7 +232,7 @@ def get_username_emails(username: str):
     conn.close()
     return [dict(row) for row in rows]
 
-def get_email_by_id(id: int):
+def get_email_by_id(id: str):
     conn = get_conn()
     c = dict_cursor(conn)
     c.execute("SELECT * FROM emails WHERE id = %s", (id,))
