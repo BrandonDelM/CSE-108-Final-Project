@@ -1,6 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useState, React, useEffect } from 'react'
-import './DashBoard.css'
+import './Dashboard.css'
 import { apiGetCampaignUsername, apiPostSubscriber } from '../api'
 
 function SignUp() {
