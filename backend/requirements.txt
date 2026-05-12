@@ -4,3 +4,4 @@ flask-jwt-extended
 flask-cors
 flask-admin
 flask-sqlalchemy
+cryptography==41.0.0
