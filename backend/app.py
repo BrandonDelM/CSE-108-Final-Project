@@ -411,6 +411,7 @@ def api_save_email():
     return jsonify({"msg": f"Successfully saved email"}), 200
 
 @app.route("/api/mail/send", methods=["POST"])
+@jwt_required()
 def api_send_save_email():
     try:
         username = get_jwt_identity()
@@ -459,6 +460,7 @@ def api_send_save_email():
     except Exception as e:
         print("API ERROR:", e)
         return jsonify({"msg": "Internal server error", "error": str(e)}), 500
+
 @app.route("/api/mail/delete", methods=["DELETE"])
 @jwt_required()
 def api_delete_email():
