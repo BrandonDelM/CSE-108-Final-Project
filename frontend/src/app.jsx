@@ -72,13 +72,6 @@ export default function App() {
     </div>
   )
 
-  if (!user) {
-    return <AuthPage onLogin={setUser} />
-  }
-  if (!user.is_setup) {
-    return <SetUp user={user} onLogout={handleLogout} onSetupComplete={() => setUser(u => ({ ...u, is_setup: true }))} />
-  }
-
 
 
   const props = { user, onLogout: handleLogout }
