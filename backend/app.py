@@ -13,11 +13,12 @@ from datetime import timedelta
 from database import *
 import os
 from send_email import *
+from models import User
 
 app = Flask(__name__)
 
-app.config["SECRET_KEY"]                 = "change-me-in-production"
-app.config["JWT_SECRET_KEY"]             = "jwt-change-me-in-production"
+app.config["SECRET_KEY"]                 = "secret main key"
+app.config["JWT_SECRET_KEY"]             = "jwt production key"
 app.config["JWT_TOKEN_LOCATION"]         = ["cookies"]
 app.config["JWT_COOKIE_SECURE"]          = False
 app.config["JWT_COOKIE_CSRF_PROTECT"]    = False
@@ -35,13 +36,13 @@ db     = SQLAlchemy(app)
 CORS(app, origins=["http://127.0.0.1:5173", "http://localhost:5173"],
      supports_credentials=True)
 
-class User(db.Model):
+"""class User(db.Model):
     __tablename__ = "users"
     id       = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     role     = db.Column(db.String, nullable=False, default="student")
-
+"""
 class SecureAdminView(ModelView):
     column_exclude_list    = ["password"]
     form_excluded_columns  = ["password"]
